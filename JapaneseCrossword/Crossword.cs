@@ -30,12 +30,33 @@ namespace JapaneseCrossword
 
 		public bool IsCorrect
 		{
-			get { return BlockLengthSumsByRowsAndColumnsAreEqual(); }
+			get
+			{
+				return BlockLengthSumsByRowsAndColumnsAreEqual() &&
+				       CanLinesAccomodateBlocks();
+			}
 		}
 
 		private bool BlockLengthSumsByRowsAndColumnsAreEqual()
 		{
-			return GetSumOfBlockLengths(RowBlocks)==GetSumOfBlockLengths(ColumnBlocks);
+			return GetSumOfBlockLengths(RowBlocks) == GetSumOfBlockLengths(ColumnBlocks);
+		}
+
+		private bool CanLinesAccomodateBlocks()
+		{
+			return CanLineAccommodateBlocks(ColumnCount, RowBlocks) &&
+				CanLineAccommodateBlocks(RowCount, ColumnBlocks);
+		}
+
+		private bool CanLineAccommodateBlocks(int lineLength, IEnumerable<int[]> blocks)
+		{
+			return blocks
+				.All(lineBlocks => GetEmptyCellsMinCount(lineBlocks) + lineBlocks.Sum() <= lineLength);
+		}
+
+		private int GetEmptyCellsMinCount(int[] lineBlocks)
+		{
+			return lineBlocks.Length - 1;
 		}
 
 		private int GetSumOfBlockLengths(IEnumerable<int[]> blockLengths)
