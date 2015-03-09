@@ -24,7 +24,7 @@ namespace JapaneseCrossword
 				return SolutionStatus.BadInputFilePath;
 
 			var crossword = createCrossword(crosswordAsPlainText);
-			if (!crossword.IsCorrect())
+			if (!crossword.IsCorrect)
 				return SolutionStatus.IncorrectCrossword;
 
 			throw new NotImplementedException();

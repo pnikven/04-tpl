@@ -8,39 +8,49 @@ namespace JapaneseCrossword
 	{
 		public int RowCount { get; private set; }
 		public int ColumnCount { get; private set; }
-		public IEnumerable<int[]> Rows { get; private set; }
-		public IEnumerable<int[]> Columns { get; private set; }
+		public IEnumerable<int[]> RowBlocks { get; private set; }
+		public IEnumerable<int[]> ColumnBlocks { get; private set; }
 
 		public Crossword(string crosswordAsPlainText)
 		{
-			var lines = crosswordAsPlainText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+			var strings = crosswordAsPlainText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-			RowCount = GetValueAfterColon(lines.First());
-			Rows = lines
+			RowCount = GetValueAfterColon(strings.First());
+			RowBlocks = strings
 				.Skip(1)
 				.Take(RowCount)
-				.Select(GetIntArrayFromLine);
+				.Select(GetIntArrayFromString);
 
-			ColumnCount = GetValueAfterColon(lines.Skip(RowCount + 1).First());
-			Columns = lines
+			ColumnCount = GetValueAfterColon(strings.Skip(RowCount + 1).First());
+			ColumnBlocks = strings
 				.Skip(RowCount + 2)
 				.Take(ColumnCount)
-				.Select(GetIntArrayFromLine);
+				.Select(GetIntArrayFromString);
 		}
 
-		public bool IsCorrect()
+		public bool IsCorrect
 		{
-			return Rows.Sum(a => a.Sum()) == Columns.Sum(a => a.Sum());
+			get { return BlockLengthSumsByRowsAndColumnsAreEqual(); }
 		}
 
-		private int GetValueAfterColon(string line)
+		private bool BlockLengthSumsByRowsAndColumnsAreEqual()
 		{
-			return int.Parse(line.Split(':')[1]);
+			return GetSumOfBlockLengths(RowBlocks)==GetSumOfBlockLengths(ColumnBlocks);
 		}
 
-		private int[] GetIntArrayFromLine(string line)
+		private int GetSumOfBlockLengths(IEnumerable<int[]> blockLengths)
 		{
-			return line
+			return blockLengths.Sum(x => x.Sum());
+		}
+
+		private int GetValueAfterColon(string s)
+		{
+			return int.Parse(s.Split(':')[1]);
+		}
+
+		private int[] GetIntArrayFromString(string s)
+		{
+			return s
 				.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(int.Parse)
 				.ToArray();

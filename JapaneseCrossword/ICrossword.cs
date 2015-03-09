@@ -6,8 +6,8 @@ namespace JapaneseCrossword
 	{
 		int RowCount { get; }
 		int ColumnCount { get; }
-		IEnumerable<int[]> Rows { get; }
-		IEnumerable<int[]> Columns { get; }
-		bool IsCorrect();
+		IEnumerable<int[]> RowBlocks { get; }
+		IEnumerable<int[]> ColumnBlocks { get; }
+		bool IsCorrect { get; }
 	}
 }
