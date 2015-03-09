@@ -11,6 +11,7 @@ namespace JapaneseCrossword
 		public int ColumnCount { get; private set; }
 		public IEnumerable<int[]> RowBlocks { get; private set; }
 		public IEnumerable<int[]> ColumnBlocks { get; private set; }
+		public CellState[,] Picture { get; private set; }
 
 		public Crossword(string crosswordAsPlainText)
 		{
@@ -39,8 +40,6 @@ namespace JapaneseCrossword
 					   CanLinesAccomodateBlocks();
 			}
 		}
-
-		public CellState[,] Picture { get; private set; }
 
 		private bool BlockLengthSumsByRowsAndColumnsAreEqual()
 		{
