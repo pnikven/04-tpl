@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -11,7 +13,10 @@ namespace JapaneseCrossword
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			solver = new CrosswordSolver(crosswordAsPlainText => new Crossword(crosswordAsPlainText));
+			ILineProvider lineProvider = new LineProvider();
+			solver = new CrosswordSolver(
+				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
+				lineProvider.GetLines);
 		}
 
 		[Test]
