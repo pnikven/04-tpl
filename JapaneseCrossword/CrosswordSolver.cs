@@ -27,6 +27,8 @@ namespace JapaneseCrossword
 			if (!crossword.IsCorrect)
 				return SolutionStatus.IncorrectCrossword;
 
+
+
 			throw new NotImplementedException();
 		}
 

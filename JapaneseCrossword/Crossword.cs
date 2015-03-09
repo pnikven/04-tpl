@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace JapaneseCrossword
 {
@@ -26,6 +27,8 @@ namespace JapaneseCrossword
 				.Skip(RowCount + 2)
 				.Take(ColumnCount)
 				.Select(GetIntArrayFromString);
+
+			Picture = new CellState[RowCount, ColumnCount];
 		}
 
 		public bool IsCorrect
@@ -33,9 +36,11 @@ namespace JapaneseCrossword
 			get
 			{
 				return BlockLengthSumsByRowsAndColumnsAreEqual() &&
-				       CanLinesAccomodateBlocks();
+					   CanLinesAccomodateBlocks();
 			}
 		}
+
+		public CellState[,] Picture { get; private set; }
 
 		private bool BlockLengthSumsByRowsAndColumnsAreEqual()
 		{
