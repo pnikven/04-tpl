@@ -19,5 +19,36 @@ namespace JapaneseCrossword
 			Blocks = blocks.Select((blockLength, i) => new Block(blockLength, i));
 			BlockCount = blocks.Length;
 		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((Line)obj);
+		}
+
+		protected bool Equals(Line other)
+		{
+			return
+				Type == other.Type &&
+				Index == other.Index &&
+				NeedRefresh == other.NeedRefresh &&
+				BlockCount == other.BlockCount &&
+				Blocks.All(b => b.Equals(other.Blocks.ElementAt(b.Index)));
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				var hashCode = (int)Type;
+				hashCode = (hashCode * 397) ^ Index;
+				hashCode = (hashCode * 397) ^ NeedRefresh.GetHashCode();
+				hashCode = (hashCode * 397) ^ (Blocks != null ? Blocks.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ BlockCount;
+				return hashCode;
+			}
+		}
 	}
 }
