@@ -34,7 +34,13 @@ namespace JapaneseCrossword
 			if (cells
 				.Skip(start)
 				.Take(block.Length)
-				.Any(cellState => cellState == CellState.Filled))
+				.Any(cellState => cellState == CellState.Empty))
+				return false;
+
+			if (IsFirstBlockInLine(block) &&
+				cells
+					.Take(start)
+					.Any(state => state == CellState.Filled))
 				return false;
 
 			if (IsLastBlockInLine(block, line))
@@ -54,7 +60,7 @@ namespace JapaneseCrossword
 			Enumerable.Range(startPositionOfNextBlock,
 				GetMaxStartPositionOfBlock(nextBlock, line, cells.Length) - startPositionOfNextBlock + 1)
 				.Where(nextStart =>
-					cells[nextStart - 1] != CellState.Filled &&
+					MinEmptySpaceBeforeNextBlockExists(cells, nextStart) &&
 					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled))
 				.ForEach(nextStart =>
 				{
@@ -64,6 +70,12 @@ namespace JapaneseCrossword
 				});
 
 			return result;
+		}
+
+		private static bool MinEmptySpaceBeforeNextBlockExists(CellState[] cells, int nextStart)
+		{
+			return Enumerable.Range(nextStart - MinSpaceBetweenBlocks, MinSpaceBetweenBlocks)
+				.All(pos => cells[pos] != CellState.Filled);
 		}
 
 		private void UpdateEmptyAfterBlockBeforeNextBlock(IBlock block, int start, int startNext, bool[] canBeEmpty)
@@ -84,6 +96,10 @@ namespace JapaneseCrossword
 		private bool IsLastBlockInLine(IBlock block, ILine line)
 		{
 			return block.Index == line.BlockCount - 1;
+		}
+		private bool IsFirstBlockInLine(IBlock block)
+		{
+			return block.Index == 0;
 		}
 	}
 }
