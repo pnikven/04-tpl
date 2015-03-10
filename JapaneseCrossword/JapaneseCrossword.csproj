@@ -55,9 +55,14 @@
     <Compile Include="ICrosswordSolver.cs" />
     <Compile Include="ICrosswordSolverAlgorithm.cs" />
     <Compile Include="ILine.cs" />
+    <Compile Include="ILineAnalysisResult.cs" />
+    <Compile Include="ILineAnalyzer.cs" />
     <Compile Include="ILineProvider.cs" />
     <Compile Include="IteratedLineAnalysis.cs" />
     <Compile Include="Line.cs" />
+    <Compile Include="LineAnalysisResult.cs" />
+    <Compile Include="LineAnalyzer.cs" />
+    <Compile Include="LineAnalyzerTests.cs" />
     <Compile Include="LineProvider.cs" />
     <Compile Include="LineProviderTests.cs" />
     <Compile Include="LineTests.cs" />
