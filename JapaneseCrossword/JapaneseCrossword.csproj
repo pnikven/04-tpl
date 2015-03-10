@@ -62,6 +62,7 @@
     <Compile Include="ILineAnalyzer.cs" />
     <Compile Include="ILineProvider.cs" />
     <Compile Include="IteratedLineAnalysis.cs" />
+    <Compile Include="IteratedLineAnalysisTests.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineAnalysisResult.cs" />
     <Compile Include="LineAnalyzer.cs" />

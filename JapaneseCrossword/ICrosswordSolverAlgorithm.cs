@@ -4,6 +4,6 @@ namespace JapaneseCrossword
 {
 	public interface ICrosswordSolverAlgorithm
 	{
-		CellState[,] SolveCrossword(CellState[,] sourcePicture, IEnumerable<ILine> lines);
+		CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines);
 	}
 }

@@ -5,7 +5,7 @@ namespace JapaneseCrossword
 {
 	public class IteratedLineAnalysis : ICrosswordSolverAlgorithm
 	{
-		public CellState[,] SolveCrossword(CellState[,] sourcePicture, IEnumerable<ILine> lines)
+		public CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines)
 		{
 			throw new NotImplementedException();
 		}
