@@ -7,17 +7,19 @@ namespace JapaneseCrossword
 	public class IteratedLineAnalysisTests
 	{
 		private ILineProvider lineProvider;
+		private ILineAnalyzer lineAnalyzer;
 		private ICrosswordSolverAlgorithm iteratedLineAnalysis;
 
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
 			lineProvider = new LineProvider();
-			iteratedLineAnalysis = new IteratedLineAnalysis();
+			lineAnalyzer=new LineAnalyzer();
+			iteratedLineAnalysis = new IteratedLineAnalysis(lineAnalyzer);
 		}
 
 		[Test]
-		public void SimpleInput()
+		public void SolveCrossword_SimpleInput()
 		{
 			var sourcePicture = new[,]
 			{

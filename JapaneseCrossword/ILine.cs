@@ -7,7 +7,10 @@ namespace JapaneseCrossword
 		LineType Type { get; }
 		int Index { get; }
 		bool NeedRefresh { get; }
+		void Refresh();
+		void Invalidate();
 		IEnumerable<IBlock> Blocks { get; }
 		int BlockCount { get; }
+
 	}
 }

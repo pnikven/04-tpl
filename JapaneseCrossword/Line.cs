@@ -20,6 +20,16 @@ namespace JapaneseCrossword
 			BlockCount = blocks.Length;
 		}
 
+		public void Refresh()
+		{
+			NeedRefresh = false;
+		}
+
+		public void Invalidate()
+		{
+			NeedRefresh = true;
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
