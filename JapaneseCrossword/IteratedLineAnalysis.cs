@@ -25,20 +25,23 @@ namespace JapaneseCrossword
 						var cells = CreateCells(line, picture);
 						ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
 						Enumerable.Range(0, cells.Length)
-							.Where(cellIndex => IsCellUpdated(cells, cellIndex, analysisResult))
+							.Where(cellIndex => UpdateCell(cells, cellIndex, analysisResult))
 							.ForEach(cellIndex =>
 							{
 								InvalidateCrossLine(lines, line.Type, cellIndex);
-								cells[cellIndex] = analysisResult.Cells[cellIndex];
-								if (line.Type.IsRow())
-									picture[line.Index, cellIndex] = cells[cellIndex];
-								else
-									picture[cellIndex, line.Index] = cells[cellIndex];
+								UpdatePicture(line, picture, cellIndex, cells);
 							});
 					});
 			}
-
 			return picture;
+		}
+
+		private void UpdatePicture(ILine line, CellState[,] picture, int cellIndex, CellState[] cells)
+		{
+			if (line.Type.IsRow())
+				picture[line.Index, cellIndex] = cells[cellIndex];
+			else
+				picture[cellIndex, line.Index] = cells[cellIndex];
 		}
 
 		private void InvalidateCrossLine(ILine[] lines, LineType currentLineType, int cellIndex)
@@ -48,11 +51,12 @@ namespace JapaneseCrossword
 				.Invalidate();
 		}
 
-		private bool IsCellUpdated(CellState[] cells, int cellIndex, ILineAnalysisResult analysisResult)
+		private bool UpdateCell(CellState[] cells, int cellIndex, ILineAnalysisResult analysisResult)
 		{
-			return
-				cells[cellIndex].IsUnknown() &&
-				analysisResult.Cells[cellIndex].IsKnown();
+			if (cells[cellIndex] == analysisResult.Cells[cellIndex])
+				return false;
+			cells[cellIndex] = analysisResult.Cells[cellIndex];
+			return true;
 		}
 
 		private CellState[] CreateCells(ILine line, CellState[,] picture)
