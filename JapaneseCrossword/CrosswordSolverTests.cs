@@ -1,57 +1,93 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
 namespace JapaneseCrossword
 {
+	public enum CrosswordSolverType
+	{
+		SingleThreaded,
+		MultiThreaded
+	}
+
 	[TestFixture]
 	public class CrosswordSolverTests
 	{
-		private ICrosswordSolver solver;
+		private ICrosswordSolver singleThreadedSolver;
+		private ICrosswordSolver multiThreadedSolver;
+
+		private ICrosswordSolver GetSolver(CrosswordSolverType solverType)
+		{
+			switch (solverType)
+			{
+				case CrosswordSolverType.SingleThreaded:
+					return singleThreadedSolver;
+				case CrosswordSolverType.MultiThreaded:
+					return multiThreadedSolver;
+				default:
+					throw new ArgumentOutOfRangeException("solverType");
+			}
+		}
 
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
 			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
-			var solverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);
-			solver = new CrosswordSolver(
+
+			ICrosswordSolverAlgorithm singleThreadedSolverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);
+			singleThreadedSolver = new CrosswordSolver(
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
-				(picture, lines) => solverAlgorithm.SolveCrossword(picture, lines),
+				(picture, lines) => singleThreadedSolverAlgorithm.SolveCrossword(picture, lines),
+				CellStateStringConverter.ConvertPictureToString
+			);
+
+			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis();
+			multiThreadedSolver = new CrosswordSolver(
+				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
+				lineProvider.GetLines,
+				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),
 				CellStateStringConverter.ConvertPictureToString
 			);
 		}
 
-		[Test]
-		public void InputFileNotFound()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void InputFileNotFound(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var solutionStatus = solver.Solve(Path.GetRandomFileName(), Path.GetRandomFileName());
 			Assert.AreEqual(SolutionStatus.BadInputFilePath, solutionStatus);
 		}
 
-		[Test]
-		public void IncorrectOutputFile()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void IncorrectOutputFile(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\SampleInput.txt";
 			var outputFilePath = "///.&*#";
 			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
 			Assert.AreEqual(SolutionStatus.BadOutputFilePath, solutionStatus);
 		}
 
-		[Test]
-		public void IncorrectCrossword()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void IncorrectCrossword(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\IncorrectCrossword.txt";
 			var outputFilePath = Path.GetRandomFileName();
 			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
 			Assert.AreEqual(SolutionStatus.IncorrectCrossword, solutionStatus);
 		}
 
-		[Test]
-		public void Simplest()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void Simplest(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\SampleInput.txt";
 			var outputFilePath = Path.GetRandomFileName();
 			var correctOutputFilePath = @"TestFiles\SampleInput.solved.txt";
@@ -60,9 +96,11 @@ namespace JapaneseCrossword
 			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
 		}
 
-		[Test]
-		public void Car()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void Car(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\Car.txt";
 			var outputFilePath = Path.GetRandomFileName();
 			var correctOutputFilePath = @"TestFiles\Car.solved.txt";
@@ -71,9 +109,11 @@ namespace JapaneseCrossword
 			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
 		}
 
-		[Test]
-		public void Flower()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void Flower(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\Flower.txt";
 			var outputFilePath = Path.GetRandomFileName();
 			var correctOutputFilePath = @"TestFiles\Flower.solved.txt";
@@ -82,9 +122,11 @@ namespace JapaneseCrossword
 			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
 		}
 
-		[Test]
-		public void Winter()
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void Winter(CrosswordSolverType solverType)
 		{
+			var solver = GetSolver(solverType);
 			var inputFilePath = @"TestFiles\Winter.txt";
 			var outputFilePath = Path.GetRandomFileName();
 			var correctOutputFilePath = @"TestFiles\Winter.solved.txt";
