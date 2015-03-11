@@ -9,10 +9,10 @@ namespace JapaneseCrossword
 	public class CrosswordSolver : ICrosswordSolver
 	{
 		private readonly Func<string, ICrossword> createCrossword;
-		private readonly Func<LineType, IEnumerable<int[]>, IEnumerable<ILine>> getLines;
+		private readonly Func<ICrossword, IEnumerable<ILine>> getLines;
 
-		public CrosswordSolver(Func<string, ICrossword> createCrossword, 
-			Func<LineType, IEnumerable<int[]>, IEnumerable<ILine>> getLines)
+		public CrosswordSolver(Func<string, ICrossword> createCrossword,
+			Func<ICrossword, IEnumerable<ILine>> getLines)
 		{
 			this.createCrossword = createCrossword;
 			this.getLines = getLines;
@@ -31,17 +31,11 @@ namespace JapaneseCrossword
 			if (!crossword.IsCorrect)
 				return SolutionStatus.IncorrectCrossword;
 
-			var lines = GetLines(crossword);
+			var lines = getLines(crossword);
 
 
 
 			throw new NotImplementedException();
-		}
-
-		private IEnumerable<ILine> GetLines(ICrossword crossword)
-		{
-			return getLines(LineType.Row, crossword.RowBlocks)
-				.Concat(getLines(LineType.Column, crossword.ColumnBlocks));
 		}
 
 		private string TryReadInputFile(string inputFilePath)
