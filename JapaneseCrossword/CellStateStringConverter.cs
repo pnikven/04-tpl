@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using MoreLinq;
 
 namespace JapaneseCrossword
 {
@@ -57,6 +59,23 @@ namespace JapaneseCrossword
 				sb.AppendLine();
 			}
 			return sb.ToString();
+		}
+
+		public static CellState[,] ConvertPictureToCellStateArray(string picturePath)
+		{
+			var rows = File.ReadAllLines(picturePath);
+			var rowCount = rows.Length;
+			var colCount = rows.First().Length;
+			var i = 0;
+			var j = 0;
+			var result = new CellState[rowCount, colCount];
+			rows.ForEach(row =>
+			{
+				row.ToCharArray().ForEach(c => result[i, j++] = CellStateStringConverter.ConvertCharToCellState(c));
+				j = 0;
+				i++;
+			});
+			return result;
 		}
 	}
 }

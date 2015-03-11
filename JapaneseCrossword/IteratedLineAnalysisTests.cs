@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using MoreLinq;
 using NUnit.Framework;
 
 namespace JapaneseCrossword
@@ -23,60 +22,25 @@ namespace JapaneseCrossword
 			createCrossword = crosswordAsPlainText => new Crossword(crosswordAsPlainText);
 		}
 
-		[Test]
-		public void SolveCrossword_SimpleInput()
+		private void Check(string inputPath, string solvedPath)
 		{
-			var crossword = createCrossword(File.ReadAllText(@"TestFiles\SampleInput.txt"));
+			var crossword = createCrossword(File.ReadAllText(inputPath));
 			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
 			var lines = lineProvider.GetLines(crossword).ToArray();
-			var expected = ConvertPictureToCellStateArray(@"TestFiles\SampleInput.solved.txt");
+			var expected = CellStateStringConverter.ConvertPictureToCellStateArray(solvedPath);
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 
 			Assert.AreEqual(expected, result);
 		}
 
-		[Test]
-		public void SolveCrossword_Car()
+		[TestCase(@"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt")]
+		[TestCase(@"TestFiles\Car.txt", @"TestFiles\Car.solved.txt")]
+		[TestCase(@"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt")]
+		[TestCase(@"TestFiles\Winter.txt", @"TestFiles\Winter.solved.txt")]
+		public void SolveCrossword_SimpleInput(string inputPath, string solvedPath)
 		{
-			var crossword = createCrossword(File.ReadAllText(@"TestFiles\Car.txt"));
-			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
-			var lines = lineProvider.GetLines(crossword).ToArray();
-			var expected = ConvertPictureToCellStateArray(@"TestFiles\Car.solved.txt");
-
-			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
-
-			Assert.AreEqual(expected, result);
-		}
-
-		[Test]
-		public void SolveCrossword_Flower()
-		{
-			var crossword = createCrossword(File.ReadAllText(@"TestFiles\Flower.txt"));
-			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
-			var lines = lineProvider.GetLines(crossword).ToArray();
-			var expected = ConvertPictureToCellStateArray(@"TestFiles\Flower.solved.txt");
-
-			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
-
-			Assert.AreEqual(expected, result);
-		}
-
-		private CellState[,] ConvertPictureToCellStateArray(string picturePath)
-		{
-			var rows = File.ReadAllLines(picturePath);
-			var rowCount = rows.Length;
-			var colCount = rows.First().Length;
-			var i = 0;
-			var j = 0;
-			var result = new CellState[rowCount, colCount];
-			rows.ForEach(row =>
-			{
-				row.ToCharArray().ForEach(c => result[i, j++] = CellStateStringConverter.ConvertCharToCellState(c));
-				j = 0;
-				i++;
-			});
-			return result;
+			Check(inputPath, solvedPath);
 		}
 
 	}
