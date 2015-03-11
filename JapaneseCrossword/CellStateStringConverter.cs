@@ -53,7 +53,6 @@ namespace JapaneseCrossword
 			var sb = new StringBuilder();
 			for (var i = 0; i < picture.GetLength(0); i++)
 			{
-				sb.Append(string.Format("{0}:", i.ToString().PadLeft(2)));
 				for (var j = 0; j < picture.GetLength(1); j++)
 					sb.Append(ConvertCellStateToChar(picture[i, j]));
 				sb.AppendLine();
@@ -71,7 +70,7 @@ namespace JapaneseCrossword
 			var result = new CellState[rowCount, colCount];
 			rows.ForEach(row =>
 			{
-				row.ToCharArray().ForEach(c => result[i, j++] = CellStateStringConverter.ConvertCharToCellState(c));
+				row.ToCharArray().ForEach(c => result[i, j++] = ConvertCharToCellState(c));
 				j = 0;
 				i++;
 			});

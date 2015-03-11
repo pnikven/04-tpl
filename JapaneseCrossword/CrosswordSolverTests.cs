@@ -13,10 +13,15 @@ namespace JapaneseCrossword
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			ILineProvider lineProvider = new LineProvider();
+			var lineProvider = new LineProvider();
+			var lineAnalyzer = new LineAnalyzer();
+			var solverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);
 			solver = new CrosswordSolver(
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
-				lineProvider.GetLines);
+				lineProvider.GetLines,
+				(picture, lines) => solverAlgorithm.SolveCrossword(picture, lines),
+				CellStateStringConverter.ConvertPictureToString
+			);
 		}
 
 		[Test]

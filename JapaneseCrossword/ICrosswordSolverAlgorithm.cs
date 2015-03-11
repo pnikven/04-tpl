@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace JapaneseCrossword
+﻿namespace JapaneseCrossword
 {
 	public interface ICrosswordSolverAlgorithm
 	{
