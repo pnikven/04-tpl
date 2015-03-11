@@ -34,6 +34,7 @@ namespace JapaneseCrossword
 			Assert.AreEqual(expected, result);
 		}
 
+		[Ignore]
 		[TestCase(@"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt")]
 		[TestCase(@"TestFiles\Car.txt", @"TestFiles\Car.solved.txt")]
 		[TestCase(@"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt")]
