@@ -14,10 +14,7 @@ namespace JapaneseCrossword
 
 		public CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines)
 		{
-			var rowCount = sourcePicture.GetLength(0);
-			var columnCount = sourcePicture.GetLength(1);
-			var picture = new CellState[rowCount, columnCount];
-
+			var picture = new CellState[sourcePicture.GetLength(0), sourcePicture.GetLength(1)];
 			while (lines.Any(line => line.NeedRefresh))
 			{
 				lines
@@ -25,30 +22,46 @@ namespace JapaneseCrossword
 					.ForEach(line =>
 					{
 						line.Refresh();
-
-						var cells = Enumerable.Range(0, line.Type == LineType.Row ? columnCount : rowCount)
-							.Select(i => line.Type == LineType.Row ?
-								picture[line.Index, i] :
-								picture[i, line.Index])
-							.ToArray();
+						var cells = CreateCells(line, picture);
 						ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
 						Enumerable.Range(0, cells.Length)
-							.Where(i => cells[i] == CellState.Unknown &&
-								analysisResult.CanBeFilled[i] ^ analysisResult.CanBeEmpty[i]
-							)
-							.ForEach(i =>
+							.Where(cellIndex => IsCellUpdated(cells, cellIndex, analysisResult))
+							.ForEach(cellIndex =>
 							{
-								lines.First(l => l.Type == line.Type.Reverse() && l.Index == i).Invalidate();
-								cells[i] = analysisResult.CanBeFilled[i] ? CellState.Filled : CellState.Empty;
+								InvalidateCrossLine(lines, line.Type, cellIndex);
+								cells[cellIndex] = analysisResult.CanBeFilled[cellIndex] ? CellState.Filled : CellState.Empty;
 								if (line.Type == LineType.Row)
-									picture[line.Index, i] = cells[i];
+									picture[line.Index, cellIndex] = cells[cellIndex];
 								else
-									picture[i, line.Index] = cells[i];
+									picture[cellIndex, line.Index] = cells[cellIndex];
 							});
 					});
 			}
 
 			return picture;
+		}
+
+		private void InvalidateCrossLine(ILine[] lines, LineType currentLineType, int cellIndex)
+		{
+			lines
+				.First(l => l.Type == currentLineType.Reverse() && l.Index == cellIndex)
+				.Invalidate();
+		}
+
+		private bool IsCellUpdated(CellState[] cells, int cellIndex, ILineAnalysisResult analysisResult)
+		{
+			return
+				cells[cellIndex] == CellState.Unknown &&
+				analysisResult.CanBeFilled[cellIndex] ^ analysisResult.CanBeEmpty[cellIndex];
+		}
+
+		private CellState[] CreateCells(ILine line, CellState[,] picture)
+		{
+			return Enumerable.Range(0, line.Type == LineType.Row ? picture.GetLength(1) : picture.GetLength(0))
+				.Select(i => line.Type == LineType.Row
+					? picture[line.Index, i]
+					: picture[i, line.Index])
+				.ToArray();
 		}
 	}
 }
