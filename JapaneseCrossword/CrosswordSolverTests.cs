@@ -43,7 +43,7 @@ namespace JapaneseCrossword
 				CellStateStringConverter.ConvertPictureToString
 			);
 
-			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis();
+			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
 			multiThreadedSolver = new CrosswordSolver(
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,

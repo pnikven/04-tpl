@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MoreLinq;
 
 namespace JapaneseCrossword
@@ -12,28 +13,39 @@ namespace JapaneseCrossword
 			this.lineAnalyzer = lineAnalyzer;
 		}
 
-		public CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines)
+		public virtual CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines)
 		{
 			var picture = new CellState[sourcePicture.GetLength(0), sourcePicture.GetLength(1)];
-			while (lines.Any(line => line.NeedRefresh))
+			while (true)
 			{
-				lines
-					.Where(line => line.NeedRefresh)
-					.ForEach(line =>
-					{
-						line.Refresh();
-						var cells = CreateCells(line, picture);
-						ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
-						Enumerable.Range(0, cells.Length)
-							.Where(cellIndex => UpdateCell(cells, cellIndex, analysisResult))
-							.ForEach(cellIndex =>
-							{
-								InvalidateCrossLine(lines, line.Type, cellIndex);
-								UpdatePicture(line, picture, cellIndex, cells);
-							});
-					});
+				var invalidLines = GetInvalidLines(lines);
+				if (!invalidLines.Any())
+					break;
+				invalidLines.ForEach(line => AnalyzeLine(lines, line, picture));
 			}
+
 			return picture;
+		}
+
+		protected ILine[] GetInvalidLines(ILine[] lines)
+		{
+			return lines
+				.Where(line => line.NeedRefresh)
+				.ToArray();
+		}
+
+		protected void AnalyzeLine(ILine[] lines, ILine line, CellState[,] picture)
+		{
+			line.Refresh();
+			var cells = CreateCells(line, picture);
+			ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
+			Enumerable.Range(0, cells.Length)
+				.Where(cellIndex => UpdateCell(cells, cellIndex, analysisResult))
+				.ForEach(cellIndex =>
+				{
+					InvalidateCrossLine(lines, line.Type, cellIndex);
+					UpdatePicture(line, picture, cellIndex, cells);
+				});
 		}
 
 		private void UpdatePicture(ILine line, CellState[,] picture, int cellIndex, CellState[] cells)
