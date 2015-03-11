@@ -38,7 +38,7 @@ namespace JapaneseCrossword
 							)
 							.ForEach(i =>
 							{
-								lines.First(l => l.Type == ReverseLineType(line.Type) && l.Index == i).Invalidate();
+								lines.First(l => l.Type == line.Type.Reverse() && l.Index == i).Invalidate();
 								cells[i] = analysisResult.CanBeFilled[i] ? CellState.Filled : CellState.Empty;
 								if (line.Type == LineType.Row)
 									picture[line.Index, i] = cells[i];
@@ -49,11 +49,6 @@ namespace JapaneseCrossword
 			}
 
 			return picture;
-		}
-
-		private LineType ReverseLineType(LineType type)
-		{
-			return type == LineType.Row ? LineType.Column : LineType.Row;
 		}
 	}
 }

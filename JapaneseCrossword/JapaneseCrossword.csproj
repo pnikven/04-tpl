@@ -72,6 +72,7 @@
     <Compile Include="LineProviderTests.cs" />
     <Compile Include="LineTests.cs" />
     <Compile Include="LineType.cs" />
+    <Compile Include="LineTypeExtensions.cs" />
     <Compile Include="MultiThreadedIteratedLineAnalysis.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
