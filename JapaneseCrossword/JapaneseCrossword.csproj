@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Block.cs" />
     <Compile Include="CellState.cs" />
+    <Compile Include="CellStateExtensions.cs" />
     <Compile Include="CellStateStringConverter.cs" />
     <Compile Include="Crossword.cs" />
     <Compile Include="CrosswordSolver.cs" />

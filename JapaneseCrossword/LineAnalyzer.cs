@@ -34,20 +34,20 @@ namespace JapaneseCrossword
 			if (cells
 				.Skip(start)
 				.Take(block.Length)
-				.Any(cellState => cellState == CellState.Empty))
+				.Any(state => state.IsEmpty()))
 				return false;
 
 			if (IsFirstBlockInLine(block) &&
 				cells
 					.Take(start)
-					.Any(state => state == CellState.Filled))
+					.Any(state => state.IsFilled()))
 				return false;
 
 			if (IsLastBlockInLine(block, line))
 			{
 				if (cells
 					.Skip(start + block.Length)
-					.Any(state => state == CellState.Filled))
+					.Any(state => state.IsFilled()))
 					return false;
 				UpdateFilledOnBlock(block, start, canBeFilled);
 				UpdateEmptyAfterBlock(block, start, canBeEmpty);
@@ -79,13 +79,13 @@ namespace JapaneseCrossword
 			return cells
 				.Skip(endPositionOfCurrentBlock + 1)
 				.Take(nextStart - endPositionOfCurrentBlock - 1)
-				.All(cellState => cellState != CellState.Filled);
+				.All(state => state.IsNotFilled());
 		}
 
 		private static bool MinEmptySpaceBeforeNextBlockExists(CellState[] cells, int nextStart)
 		{
 			return Enumerable.Range(nextStart - MinSpaceBetweenBlocks, MinSpaceBetweenBlocks)
-				.All(pos => cells[pos] != CellState.Filled);
+				.All(pos => cells[pos].IsNotFilled());
 		}
 
 		private void UpdateEmptyAfterBlockBeforeNextBlock(IBlock block, int start, int startNext, bool[] canBeEmpty)

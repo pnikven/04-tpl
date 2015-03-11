@@ -159,7 +159,7 @@ namespace JapaneseCrossword
 		[Test]
 		public void Analyze_ObviousRow()
 		{
-			var line = new Line(LineType.Row, 23, new[] { 1,1 });
+			var line = new Line(LineType.Row, 23, new[] { 1, 1 });
 			var cells = CellStateStringConverter.ConvertStringToCells("?*?*");
 			var expected = ".*.*";
 
@@ -173,13 +173,8 @@ namespace JapaneseCrossword
 		private void UpdateCells(CellState[] cells, ILineAnalysisResult analysisResult)
 		{
 			Enumerable.Range(0, cells.Length)
-				.Where(i => cells[i] == CellState.Unknown &&
-							(analysisResult.CanBeFilled[i] ^ analysisResult.CanBeEmpty[i])
-				)
-				.ForEach(i =>
-				{
-					cells[i] = analysisResult.CanBeFilled[i] ? CellState.Filled : CellState.Empty;
-				});
+				.Where(i => cells[i].IsUnknown() && analysisResult.Cells[i].IsKnown())
+				.ForEach(i => cells[i] = analysisResult.Cells[i]);
 		}
 
 	}

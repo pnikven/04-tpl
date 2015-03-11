@@ -4,13 +4,26 @@ namespace JapaneseCrossword
 {
 	class LineAnalysisResult : ILineAnalysisResult
 	{
-		public bool[] CanBeFilled { get; private set; }
-		public bool[] CanBeEmpty { get; private set; }
+		private int Length { get { return canBeFilled.Length; } }
+		private readonly bool[] canBeFilled;
+		private readonly bool[] canBeEmpty;
+
+		public CellState[] Cells
+		{
+			get
+			{
+				return Enumerable.Range(0, Length)
+					.Select(i => canBeFilled[i] ^ canBeEmpty[i] ?
+						(canBeFilled[i] ? CellState.Filled : CellState.Empty) :
+						CellState.Unknown)
+					.ToArray();
+			}
+		}
 
 		public LineAnalysisResult(bool[] canBeFilled, bool[] canBeEmpty)
 		{
-			CanBeFilled = canBeFilled;
-			CanBeEmpty = canBeEmpty;
+			this.canBeFilled = canBeFilled;
+			this.canBeEmpty = canBeEmpty;
 		}
 
 		public override bool Equals(object obj)
@@ -23,25 +36,22 @@ namespace JapaneseCrossword
 
 		protected bool Equals(LineAnalysisResult other)
 		{
-			return 
-				CanBeFilled.SequenceEqual(other.CanBeFilled) && 
-				CanBeEmpty.SequenceEqual(other.CanBeEmpty);
+			return Cells.SequenceEqual(other.Cells);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return ((CanBeFilled != null ? CanBeFilled.GetHashCode() : 0) * 397) ^ 
-					(CanBeEmpty != null ? CanBeEmpty.GetHashCode() : 0);
+				return ((canBeFilled != null ? canBeFilled.GetHashCode() : 0) * 397) ^
+					(canBeEmpty != null ? canBeEmpty.GetHashCode() : 0);
 			}
 		}
 
 		public override string ToString()
 		{
-			return string.Join("",
-				Enumerable.Range(0, CanBeFilled.Length)
-					.Select(i => (CanBeFilled[i] ^ CanBeEmpty[i]) ? (CanBeFilled[i] ? '*' : '.') : '?'));
+			return string.Join("", Enumerable.Range(0, Length)
+				.Select(i => CellStateStringConverter.ConvertCellStateToChar(Cells[i])));
 		}
 	}
 }

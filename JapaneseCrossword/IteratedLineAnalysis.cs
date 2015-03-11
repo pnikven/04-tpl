@@ -29,8 +29,8 @@ namespace JapaneseCrossword
 							.ForEach(cellIndex =>
 							{
 								InvalidateCrossLine(lines, line.Type, cellIndex);
-								cells[cellIndex] = analysisResult.CanBeFilled[cellIndex] ? CellState.Filled : CellState.Empty;
-								if (line.Type == LineType.Row)
+								cells[cellIndex] = analysisResult.Cells[cellIndex];
+								if (line.Type.IsRow())
 									picture[line.Index, cellIndex] = cells[cellIndex];
 								else
 									picture[cellIndex, line.Index] = cells[cellIndex];
@@ -51,14 +51,14 @@ namespace JapaneseCrossword
 		private bool IsCellUpdated(CellState[] cells, int cellIndex, ILineAnalysisResult analysisResult)
 		{
 			return
-				cells[cellIndex] == CellState.Unknown &&
-				analysisResult.CanBeFilled[cellIndex] ^ analysisResult.CanBeEmpty[cellIndex];
+				cells[cellIndex].IsUnknown() &&
+				analysisResult.Cells[cellIndex].IsKnown();
 		}
 
 		private CellState[] CreateCells(ILine line, CellState[,] picture)
 		{
-			return Enumerable.Range(0, line.Type == LineType.Row ? picture.GetLength(1) : picture.GetLength(0))
-				.Select(i => line.Type == LineType.Row
+			return Enumerable.Range(0, line.Type.IsRow() ? picture.GetLength(1) : picture.GetLength(0))
+				.Select(i => line.Type.IsRow()
 					? picture[line.Index, i]
 					: picture[i, line.Index])
 				.ToArray();
