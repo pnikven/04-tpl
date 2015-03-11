@@ -56,11 +56,13 @@ namespace JapaneseCrossword
 
 			var result = false;
 			var nextBlock = line.Blocks.ElementAt(block.Index + 1);
+			var endPositionOfCurrentBlock = start + block.Length - 1;
 			var startPositionOfNextBlock = start + block.Length + MinSpaceBetweenBlocks;
 			Enumerable.Range(startPositionOfNextBlock,
 				GetMaxStartPositionOfBlock(nextBlock, line, cells.Length) - startPositionOfNextBlock + 1)
 				.Where(nextStart =>
 					MinEmptySpaceBeforeNextBlockExists(cells, nextStart) &&
+					NoFilledCellsBetweenCurrentAndNextBlocks(endPositionOfCurrentBlock, nextStart, cells) &&
 					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled))
 				.ForEach(nextStart =>
 				{
@@ -70,6 +72,14 @@ namespace JapaneseCrossword
 				});
 
 			return result;
+		}
+
+		private bool NoFilledCellsBetweenCurrentAndNextBlocks(int endPositionOfCurrentBlock, int nextStart, CellState[] cells)
+		{
+			return cells
+				.Skip(endPositionOfCurrentBlock + 1)
+				.Take(nextStart - endPositionOfCurrentBlock - 1)
+				.All(cellState => cellState != CellState.Filled);
 		}
 
 		private static bool MinEmptySpaceBeforeNextBlockExists(CellState[] cells, int nextStart)

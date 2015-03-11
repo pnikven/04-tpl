@@ -44,7 +44,6 @@ namespace JapaneseCrossword
 									picture[line.Index, i] = cells[i];
 								else
 									picture[i, line.Index] = cells[i];
-
 							});
 					});
 			}

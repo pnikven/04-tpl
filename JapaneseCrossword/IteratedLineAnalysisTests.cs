@@ -26,10 +26,10 @@ namespace JapaneseCrossword
 		[Test]
 		public void SolveCrossword_SimpleInput()
 		{
-			var sourcePicture = new CellState[2, 2];
-			var expected = ConvertPictureToCellStateArray(@"TestFiles\SampleInput.solved.txt");
 			var crossword = createCrossword(File.ReadAllText(@"TestFiles\SampleInput.txt"));
+			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
 			var lines = lineProvider.GetLines(crossword).ToArray();
+			var expected = ConvertPictureToCellStateArray(@"TestFiles\SampleInput.solved.txt");
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 
@@ -39,10 +39,23 @@ namespace JapaneseCrossword
 		[Test]
 		public void SolveCrossword_Car()
 		{
-			var sourcePicture = new CellState[8, 10];
-			var expected = ConvertPictureToCellStateArray(@"TestFiles\Car.solved.txt");
 			var crossword = createCrossword(File.ReadAllText(@"TestFiles\Car.txt"));
+			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
 			var lines = lineProvider.GetLines(crossword).ToArray();
+			var expected = ConvertPictureToCellStateArray(@"TestFiles\Car.solved.txt");
+
+			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
+
+			Assert.AreEqual(expected, result);
+		}
+
+		[Test]
+		public void SolveCrossword_Flower()
+		{
+			var crossword = createCrossword(File.ReadAllText(@"TestFiles\Flower.txt"));
+			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
+			var lines = lineProvider.GetLines(crossword).ToArray();
+			var expected = ConvertPictureToCellStateArray(@"TestFiles\Flower.solved.txt");
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 
@@ -59,26 +72,12 @@ namespace JapaneseCrossword
 			var result = new CellState[rowCount, colCount];
 			rows.ForEach(row =>
 			{
-				row.ToCharArray().ForEach(c => result[i, j++] = ConvertCharToCellState(c));
+				row.ToCharArray().ForEach(c => result[i, j++] = CellStateStringConverter.ConvertCharToCellState(c));
 				j = 0;
 				i++;
 			});
 			return result;
 		}
 
-		private CellState ConvertCharToCellState(char c)
-		{
-			switch (c)
-			{
-				case '.':
-					return CellState.Empty;
-				case '*':
-					return CellState.Filled;
-				case '?':
-					return CellState.Unknown;
-				default:
-					throw new Exception(string.Format("Unknown char {0} in picture", c));
-			}
-		}
 	}
 }

@@ -36,5 +36,12 @@ namespace JapaneseCrossword
 					(CanBeEmpty != null ? CanBeEmpty.GetHashCode() : 0);
 			}
 		}
+
+		public override string ToString()
+		{
+			return string.Join("",
+				Enumerable.Range(0, CanBeFilled.Length)
+					.Select(i => (CanBeFilled[i] ^ CanBeEmpty[i]) ? (CanBeFilled[i] ? '*' : '.') : '?'));
+		}
 	}
 }

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using NUnit.Framework;
 
 namespace JapaneseCrossword
@@ -124,6 +126,60 @@ namespace JapaneseCrossword
 			var result = lineAnalyzer.Analyze(line, cells);
 
 			Assert.AreEqual(expected, result);
+		}
+
+		[Test]
+		public void Analyze_Row23FromFlower()
+		{
+			var line = new Line(LineType.Row, 23, new[] { 10, 1, 4, 1, 1, 3 });
+			var cells = CellStateStringConverter.ConvertStringToCells("???********???*..?***??*.*.***");
+			var expected = ".??********??.*..?***?.*.*.***";
+
+			var analysisResult = lineAnalyzer.Analyze(line, cells);
+			UpdateCells(cells, analysisResult);
+			var result = CellStateStringConverter.ConvertCellsToString(cells);
+
+			Assert.AreEqual(expected, result);
+		}
+
+		[Test]
+		public void Analyze_Row23TruncatedFromFlower()
+		{
+			var line = new Line(LineType.Row, 23, new[] { 1, 1, 3 });
+			var cells = CellStateStringConverter.ConvertStringToCells("??*.*.***");
+			var expected = "..*.*.***";
+
+			var analysisResult = lineAnalyzer.Analyze(line, cells);
+			UpdateCells(cells, analysisResult);
+			var result = CellStateStringConverter.ConvertCellsToString(cells);
+
+			Assert.AreEqual(expected, result);
+		}
+
+		[Test]
+		public void Analyze_ObviousRow()
+		{
+			var line = new Line(LineType.Row, 23, new[] { 1,1 });
+			var cells = CellStateStringConverter.ConvertStringToCells("?*?*");
+			var expected = ".*.*";
+
+			var analysisResult = lineAnalyzer.Analyze(line, cells);
+			UpdateCells(cells, analysisResult);
+			var result = CellStateStringConverter.ConvertCellsToString(cells);
+
+			Assert.AreEqual(expected, result);
+		}
+
+		private void UpdateCells(CellState[] cells, ILineAnalysisResult analysisResult)
+		{
+			Enumerable.Range(0, cells.Length)
+				.Where(i => cells[i] == CellState.Unknown &&
+							(analysisResult.CanBeFilled[i] ^ analysisResult.CanBeEmpty[i])
+				)
+				.ForEach(i =>
+				{
+					cells[i] = analysisResult.CanBeFilled[i] ? CellState.Filled : CellState.Empty;
+				});
 		}
 
 	}
