@@ -12,6 +12,7 @@ namespace JapaneseCrossword
 		private ILineProvider lineProvider;
 		private ILineAnalyzer lineAnalyzer;
 		private ICrosswordSolverAlgorithm iteratedLineAnalysis;
+		private Func<string, ICrossword> createCrossword;
 
 		[TestFixtureSetUp]
 		public void SetUp()
@@ -19,24 +20,16 @@ namespace JapaneseCrossword
 			lineProvider = new LineProvider();
 			lineAnalyzer = new LineAnalyzer();
 			iteratedLineAnalysis = new IteratedLineAnalysis(lineAnalyzer);
+			createCrossword = crosswordAsPlainText => new Crossword(crosswordAsPlainText);
 		}
 
 		[Test]
 		public void SolveCrossword_SimpleInput()
 		{
-			var sourcePicture = new[,]
-			{
-				{CellState.Unknown, CellState.Unknown},
-				{CellState.Unknown, CellState.Unknown}
-			};
-			var expected = new[,]
-			{
-				{CellState.Filled, CellState.Filled},
-				{CellState.Empty, CellState.Filled}
-			};
-			var lines = lineProvider.GetLines(LineType.Row, new[] { new[] { 2 }, new[] { 1 } })
-				.Concat(lineProvider.GetLines(LineType.Column, new[] { new[] { 1 }, new[] { 2 } }))
-				.ToArray();
+			var sourcePicture = new CellState[2, 2];
+			var expected = ConvertPictureToCellStateArray(@"TestFiles\SampleInput.solved.txt");
+			var crossword = createCrossword(File.ReadAllText(@"TestFiles\SampleInput.txt"));
+			var lines = lineProvider.GetLines(crossword).ToArray();
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 
@@ -48,11 +41,8 @@ namespace JapaneseCrossword
 		{
 			var sourcePicture = new CellState[8, 10];
 			var expected = ConvertPictureToCellStateArray(@"TestFiles\Car.solved.txt");
-			var lines = lineProvider.GetLines(LineType.Row,
-				new[] { new[] { 6 }, new[] { 2, 1, 1 }, new[] { 1, 1, 1 }, new[] { 9 }, new[] { 9 }, new[] { 10 }, new[] { 2, 2 }, new[] { 2, 2 } })
-				.Concat(lineProvider.GetLines(LineType.Column,
-				new[] { new[] { 1 }, new[] { 3 }, new[] { 5 }, new[] { 7 }, new[] { 2, 3 }, new[] { 1, 3 }, new[] { 6 }, new[] { 1, 5 }, new[] { 1, 5 }, new[] { 6 } }))
-				.ToArray();
+			var crossword = createCrossword(File.ReadAllText(@"TestFiles\Car.txt"));
+			var lines = lineProvider.GetLines(crossword).ToArray();
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 
