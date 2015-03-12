@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace JapaneseCrossword
 {
-	class Crossword : ICrossword
+	public class Crossword : ICrossword
 	{
 		public int RowCount { get; private set; }
 		public int ColumnCount { get; private set; }

@@ -2,7 +2,7 @@
 
 namespace JapaneseCrossword
 {
-	class LineAnalysisResult : ILineAnalysisResult
+	public class LineAnalysisResult : ILineAnalysisResult
 	{
 		private int Length { get { return canBeFilled.Length; } }
 		private readonly bool[] canBeFilled;

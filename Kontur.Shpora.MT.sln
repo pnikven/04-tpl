@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadPool", "ThreadPool\ThreadPool.csproj", "{55697251-6B86-403C-98BC-7BBEDD5F471A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherForecast", "WeatherForecast\WeatherForecast.csproj", "{0B1BFB88-666A-48DE-A554-9BD8884A29E4}"
@@ -12,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskCompletionSource", "TaskCompletionSource\TaskCompletionSource.csproj", "{AB9D068F-0578-4B76-A619-779EE75D3BB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JapaneseCrossword", "JapaneseCrossword\JapaneseCrossword.csproj", "{926580FF-CB49-4B4E-A2EF-3BBDC92A2F4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JapaneseCrosswordTests", "JapaneseCrosswordTests\JapaneseCrosswordTests.csproj", "{B0C9B1EA-25BB-4B95-8AE9-3909F39C8D4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +47,10 @@ Global
 		{926580FF-CB49-4B4E-A2EF-3BBDC92A2F4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{926580FF-CB49-4B4E-A2EF-3BBDC92A2F4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{926580FF-CB49-4B4E-A2EF-3BBDC92A2F4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0C9B1EA-25BB-4B95-8AE9-3909F39C8D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0C9B1EA-25BB-4B95-8AE9-3909F39C8D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0C9B1EA-25BB-4B95-8AE9-3909F39C8D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0C9B1EA-25BB-4B95-8AE9-3909F39C8D4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

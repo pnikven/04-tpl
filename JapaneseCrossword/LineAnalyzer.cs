@@ -3,7 +3,7 @@ using MoreLinq;
 
 namespace JapaneseCrossword
 {
-	class LineAnalyzer : ILineAnalyzer
+	public class LineAnalyzer : ILineAnalyzer
 	{
 		private const int MinSpaceBetweenBlocks = 1;
 

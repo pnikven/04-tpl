@@ -53,8 +53,6 @@
     <Compile Include="CellStateStringConverter.cs" />
     <Compile Include="Crossword.cs" />
     <Compile Include="CrosswordSolver.cs" />
-    <Compile Include="CrosswordSolverTests.cs" />
-    <Compile Include="CrosswordTests.cs" />
     <Compile Include="IBlock.cs" />
     <Compile Include="ICrossword.cs" />
     <Compile Include="ICrosswordSolver.cs" />
@@ -64,14 +62,10 @@
     <Compile Include="ILineAnalyzer.cs" />
     <Compile Include="ILineProvider.cs" />
     <Compile Include="IteratedLineAnalysis.cs" />
-    <Compile Include="IteratedLineAnalysisTests.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineAnalysisResult.cs" />
     <Compile Include="LineAnalyzer.cs" />
-    <Compile Include="LineAnalyzerTests.cs" />
     <Compile Include="LineProvider.cs" />
-    <Compile Include="LineProviderTests.cs" />
-    <Compile Include="LineTests.cs" />
     <Compile Include="LineType.cs" />
     <Compile Include="LineTypeExtensions.cs" />
     <Compile Include="MultiThreadedIteratedLineAnalysis.cs" />
@@ -82,38 +76,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="TestFiles\Car.solved.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\Car.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\Flower.solved.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\Flower.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\IncorrectCrossword.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\SampleInput.solved.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\SampleInput.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\SuperBig.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\Winter.solved.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\Winter.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

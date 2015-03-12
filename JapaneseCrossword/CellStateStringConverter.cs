@@ -6,7 +6,7 @@ using MoreLinq;
 
 namespace JapaneseCrossword
 {
-	static class CellStateStringConverter
+	public static class CellStateStringConverter
 	{
 		public static CellState ConvertCharToCellState(char c)
 		{
