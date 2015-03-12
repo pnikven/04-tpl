@@ -44,7 +44,7 @@ namespace JapaneseCrosswordTests
 		{
 			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
-			Func<string, string> readFile = inputFilePath => inputFilePath.TryReadUtf8FileFromThisPath();
+			Func<string, string> readFile = inputPath => inputPath.TryReadUtf8FileFromThisPath();
 			Func<string, string, bool> writeFile = (outputFile, contents) => outputFile.TryWriteUtf8FileToThisPath(contents);
 
 			ICrosswordSolverAlgorithm singleThreadedSolverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);

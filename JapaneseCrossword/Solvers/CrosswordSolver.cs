@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using JapaneseCrossword.Enums;
-using JapaneseCrossword.Extensions;
 using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Interfaces;
 using JapaneseCrossword.Solvers.Utils.Interfaces;
