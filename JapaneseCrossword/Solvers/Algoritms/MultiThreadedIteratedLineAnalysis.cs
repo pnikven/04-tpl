@@ -1,7 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils.Enums;
+using JapaneseCrossword.Solvers.Utils.Interfaces;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Algoritms
 {
 	public class MultiThreadedIteratedLineAnalysis : IteratedLineAnalysis
 	{

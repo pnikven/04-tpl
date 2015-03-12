@@ -1,7 +1,13 @@
 ﻿using System.Linq;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Solvers.Algoritms.Interfaces;
+using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils.Enums;
+using JapaneseCrossword.Solvers.Utils.Enums.Extensions;
+using JapaneseCrossword.Solvers.Utils.Interfaces;
 using MoreLinq;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Algoritms
 {
 	public class IteratedLineAnalysis : ICrosswordSolverAlgorithm
 	{

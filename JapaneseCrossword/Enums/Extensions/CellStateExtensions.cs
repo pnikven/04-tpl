@@ -2,7 +2,7 @@
 using System.Linq;
 using MoreLinq;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Enums.Extensions
 {
 	public static class CellStateExtensions
 	{

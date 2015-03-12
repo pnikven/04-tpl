@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using JapaneseCrossword.Enums;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Interfaces
 {
 	public interface ICrossword
 	{

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Interfaces;
 
 namespace JapaneseCrossword
 {

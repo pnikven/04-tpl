@@ -1,6 +1,9 @@
 ﻿using System.Linq;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Enums.Extensions;
+using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Algoritms.Utils
 {
 	public class LineAnalysisResult : ILineAnalysisResult
 	{

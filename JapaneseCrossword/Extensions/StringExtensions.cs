@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
+using JapaneseCrossword.Enums;
 using MoreLinq;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Extensions
 {
 	public static class StringExtensions
 	{

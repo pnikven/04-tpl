@@ -1,4 +1,4 @@
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Utils.Enums
 {
 	public enum LineType
 	{

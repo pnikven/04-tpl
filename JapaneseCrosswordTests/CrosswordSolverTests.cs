@@ -1,6 +1,14 @@
 using System;
 using System.IO;
 using JapaneseCrossword;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Enums.Extensions;
+using JapaneseCrossword.Solvers;
+using JapaneseCrossword.Solvers.Algoritms;
+using JapaneseCrossword.Solvers.Algoritms.Interfaces;
+using JapaneseCrossword.Solvers.Algoritms.Utils;
+using JapaneseCrossword.Solvers.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
 using NUnit.Framework;
 
 namespace JapaneseCrosswordTests

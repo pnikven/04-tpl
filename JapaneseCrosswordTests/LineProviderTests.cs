@@ -1,5 +1,7 @@
 using System.Collections.Generic;
-using JapaneseCrossword;
+using JapaneseCrossword.Solvers.Utils;
+using JapaneseCrossword.Solvers.Utils.Enums;
+using JapaneseCrossword.Solvers.Utils.Interfaces;
 using NUnit.Framework;
 
 namespace JapaneseCrosswordTests

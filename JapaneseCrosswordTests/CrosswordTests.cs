@@ -1,5 +1,7 @@
 ﻿using System;
 using JapaneseCrossword;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Interfaces;
 using NUnit.Framework;
 
 namespace JapaneseCrosswordTests

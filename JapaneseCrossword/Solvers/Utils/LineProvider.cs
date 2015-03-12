@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JapaneseCrossword.Interfaces;
+using JapaneseCrossword.Solvers.Utils.Enums;
+using JapaneseCrossword.Solvers.Utils.Interfaces;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Utils
 {
 	public class LineProvider : ILineProvider
 	{

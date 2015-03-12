@@ -1,5 +1,11 @@
 using System.Linq;
-using JapaneseCrossword;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Enums.Extensions;
+using JapaneseCrossword.Extensions;
+using JapaneseCrossword.Solvers.Algoritms.Utils;
+using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
+using JapaneseCrossword.Solvers.Utils.Enums;
 using MoreLinq;
 using NUnit.Framework;
 

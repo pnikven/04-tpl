@@ -1,4 +1,6 @@
-namespace JapaneseCrossword
+using JapaneseCrossword.Enums;
+
+namespace JapaneseCrossword.Solvers.Interfaces
 {
     public interface ICrosswordSolver
     {

@@ -1,4 +1,4 @@
-﻿namespace JapaneseCrossword
+﻿namespace JapaneseCrossword.Solvers.Utils.Interfaces
 {
 	public interface IBlock
 	{

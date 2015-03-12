@@ -1,4 +1,4 @@
-﻿namespace JapaneseCrossword
+﻿namespace JapaneseCrossword.Enums
 {
 	public enum CellState
 	{

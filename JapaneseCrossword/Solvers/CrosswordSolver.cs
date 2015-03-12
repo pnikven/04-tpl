@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
+using JapaneseCrossword.Enums;
+using JapaneseCrossword.Interfaces;
+using JapaneseCrossword.Solvers.Interfaces;
+using JapaneseCrossword.Solvers.Utils.Interfaces;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers
 {
 	public class CrosswordSolver : ICrosswordSolver
 	{

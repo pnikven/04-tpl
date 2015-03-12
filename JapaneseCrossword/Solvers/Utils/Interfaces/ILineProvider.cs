@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using JapaneseCrossword.Interfaces;
+using JapaneseCrossword.Solvers.Utils.Enums;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Solvers.Utils.Interfaces
 {
 	public interface ILineProvider
 	{

@@ -1,6 +1,7 @@
 using System;
+using JapaneseCrossword.Enums;
 
-namespace JapaneseCrossword
+namespace JapaneseCrossword.Extensions
 {
 	public static class CharExtensions
 	{
