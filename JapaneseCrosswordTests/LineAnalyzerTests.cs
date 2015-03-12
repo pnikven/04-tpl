@@ -132,12 +132,12 @@ namespace JapaneseCrosswordTests
 		public void Analyze_Row23FromFlower()
 		{
 			var line = new Line(LineType.Row, 23, new[] { 10, 1, 4, 1, 1, 3 });
-			var cells = CellStateStringConverter.ConvertStringToCells("???********???*..?***??*.*.***");
+			var cells = "???********???*..?***??*.*.***".ToCellStateLine();
 			var expected = ".??********??.*..?***?.*.*.***";
 
 			var analysisResult = lineAnalyzer.Analyze(line, cells);
 			UpdateCells(cells, analysisResult);
-			var result = CellStateStringConverter.ConvertCellsToString(cells);
+			var result = cells.AsString();
 
 			Assert.AreEqual(expected, result);
 		}
@@ -146,12 +146,12 @@ namespace JapaneseCrosswordTests
 		public void Analyze_Row23TruncatedFromFlower()
 		{
 			var line = new Line(LineType.Row, 23, new[] { 1, 1, 3 });
-			var cells = CellStateStringConverter.ConvertStringToCells("??*.*.***");
+			var cells = "??*.*.***".ToCellStateLine();
 			var expected = "..*.*.***";
 
 			var analysisResult = lineAnalyzer.Analyze(line, cells);
 			UpdateCells(cells, analysisResult);
-			var result = CellStateStringConverter.ConvertCellsToString(cells);
+			var result = cells.AsString();
 
 			Assert.AreEqual(expected, result);
 		}
@@ -160,12 +160,12 @@ namespace JapaneseCrosswordTests
 		public void Analyze_ObviousRow()
 		{
 			var line = new Line(LineType.Row, 23, new[] { 1, 1 });
-			var cells = CellStateStringConverter.ConvertStringToCells("?*?*");
+			var cells = "?*?*".ToCellStateLine();
 			var expected = ".*.*";
 
 			var analysisResult = lineAnalyzer.Analyze(line, cells);
 			UpdateCells(cells, analysisResult);
-			var result = CellStateStringConverter.ConvertCellsToString(cells);
+			var result = cells.AsString();
 
 			Assert.AreEqual(expected, result);
 		}

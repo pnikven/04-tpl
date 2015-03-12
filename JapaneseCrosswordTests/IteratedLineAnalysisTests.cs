@@ -28,7 +28,8 @@ namespace JapaneseCrosswordTests
 			var crossword = createCrossword(File.ReadAllText(inputPath));
 			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
 			var lines = lineProvider.GetLines(crossword).ToArray();
-			var expected = CellStateStringConverter.ConvertPictureToCellStateArray(solvedPath);
+			var solvedCrossword = File.ReadAllText(solvedPath);
+			var expected = solvedCrossword.ToCellStateMatrix();
 
 			var result = iteratedLineAnalysis.SolveCrossword(sourcePicture, lines);
 

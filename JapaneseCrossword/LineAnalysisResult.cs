@@ -51,7 +51,7 @@ namespace JapaneseCrossword
 		public override string ToString()
 		{
 			return string.Join("", Enumerable.Range(0, Length)
-				.Select(i => CellStateStringConverter.ConvertCellStateToChar(Cells[i])));
+				.Select(i => Cells[i].ToChar()));
 		}
 	}
 }

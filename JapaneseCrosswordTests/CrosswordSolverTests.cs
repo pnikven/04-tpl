@@ -41,7 +41,7 @@ namespace JapaneseCrosswordTests
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
 				(picture, lines) => singleThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				CellStateStringConverter.ConvertPictureToString
+				picture => picture.AsString()
 			);
 
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
@@ -49,7 +49,7 @@ namespace JapaneseCrosswordTests
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
 				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				CellStateStringConverter.ConvertPictureToString
+				picture => picture.AsString()
 			);
 		}
 
