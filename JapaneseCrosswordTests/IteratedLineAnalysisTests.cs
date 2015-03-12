@@ -45,13 +45,14 @@ namespace JapaneseCrosswordTests
 			Assert.AreEqual(expected, result);
 		}
 
-		[Ignore(
-			"These tests check subset of operations being tested by CrosswordSolverTests, but can be useful for individual testing of IteratedLineAnalysis.SolveCrossword"
-			)]
+
 		[TestCase(@"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt")]
 		[TestCase(@"TestFiles\Car.txt", @"TestFiles\Car.solved.txt")]
 		[TestCase(@"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt")]
 		[TestCase(@"TestFiles\Winter.txt", @"TestFiles\Winter.solved.txt")]
+		[Ignore(
+			"These tests check subset of operations being tested by CrosswordSolverTests, but can be useful for individual testing of IteratedLineAnalysis.SolveCrossword"
+			)]
 		public void SolveCrossword_SimpleInput(string inputPath, string solvedPath)
 		{
 			Check(inputPath, solvedPath);
