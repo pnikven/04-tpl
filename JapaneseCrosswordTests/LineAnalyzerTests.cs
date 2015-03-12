@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.Linq;
+using JapaneseCrossword;
 using MoreLinq;
 using NUnit.Framework;
 
-namespace JapaneseCrossword
+namespace JapaneseCrosswordTests
 {
 	[TestFixture]
 	class LineAnalyzerTests

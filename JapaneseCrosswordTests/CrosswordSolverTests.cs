@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using JapaneseCrossword;
 using NUnit.Framework;
 
-namespace JapaneseCrossword
+namespace JapaneseCrosswordTests
 {
 	public enum CrosswordSolverType
 	{

@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using JapaneseCrossword;
+using NUnit.Framework;
 
-namespace JapaneseCrossword
+namespace JapaneseCrosswordTests
 {
 	[TestFixture]
 	public class LineTests

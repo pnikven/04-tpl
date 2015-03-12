@@ -1,17 +1,18 @@
 using System;
 using System.IO;
 using System.Linq;
+using JapaneseCrossword;
 using NUnit.Framework;
 
-namespace JapaneseCrossword
+namespace JapaneseCrosswordTests
 {
 	[TestFixture]
 	public class IteratedLineAnalysisTests
 	{
-		private ILineProvider lineProvider;
-		private ILineAnalyzer lineAnalyzer;
-		private ICrosswordSolverAlgorithm iteratedLineAnalysis;
 		private Func<string, ICrossword> createCrossword;
+		private ICrosswordSolverAlgorithm iteratedLineAnalysis;
+		private ILineAnalyzer lineAnalyzer;
+		private ILineProvider lineProvider;
 
 		[TestFixtureSetUp]
 		public void SetUp()
@@ -34,7 +35,9 @@ namespace JapaneseCrossword
 			Assert.AreEqual(expected, result);
 		}
 
-		[Ignore("These tests check subset of operations being tested by CrosswordSolverTests, but can be useful for individual testing of IteratedLineAnalysis.SolveCrossword")]
+		[Ignore(
+			"These tests check subset of operations being tested by CrosswordSolverTests, but can be useful for individual testing of IteratedLineAnalysis.SolveCrossword"
+			)]
 		[TestCase(@"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt")]
 		[TestCase(@"TestFiles\Car.txt", @"TestFiles\Car.solved.txt")]
 		[TestCase(@"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt")]
@@ -43,6 +46,5 @@ namespace JapaneseCrossword
 		{
 			Check(inputPath, solvedPath);
 		}
-
 	}
 }
