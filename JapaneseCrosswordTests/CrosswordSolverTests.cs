@@ -103,52 +103,43 @@ namespace JapaneseCrosswordTests
 		[TestCase(CrosswordSolverType.MultiThreaded)]
 		public void Simplest(CrosswordSolverType solverType)
 		{
-			var solver = GetSolver(solverType);
-			var inputFilePath = @"TestFiles\SampleInput.txt";
-			var outputFilePath = Path.GetRandomFileName();
-			var correctOutputFilePath = @"TestFiles\SampleInput.solved.txt";
-			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
-			Assert.AreEqual(SolutionStatus.Solved, solutionStatus);
-			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
+			Check(solverType, @"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt",
+				SolutionStatus.Solved);
 		}
 
 		[TestCase(CrosswordSolverType.SingleThreaded)]
 		[TestCase(CrosswordSolverType.MultiThreaded)]
 		public void Car(CrosswordSolverType solverType)
 		{
-			var solver = GetSolver(solverType);
-			var inputFilePath = @"TestFiles\Car.txt";
-			var outputFilePath = Path.GetRandomFileName();
-			var correctOutputFilePath = @"TestFiles\Car.solved.txt";
-			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
-			Assert.AreEqual(SolutionStatus.Solved, solutionStatus);
-			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
+			Check(solverType, @"TestFiles\Car.txt", @"TestFiles\Car.solved.txt",
+				SolutionStatus.Solved);
 		}
 
 		[TestCase(CrosswordSolverType.SingleThreaded)]
 		[TestCase(CrosswordSolverType.MultiThreaded)]
 		public void Flower(CrosswordSolverType solverType)
 		{
-			var solver = GetSolver(solverType);
-			var inputFilePath = @"TestFiles\Flower.txt";
-			var outputFilePath = Path.GetRandomFileName();
-			var correctOutputFilePath = @"TestFiles\Flower.solved.txt";
-			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
-			Assert.AreEqual(SolutionStatus.Solved, solutionStatus);
-			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
+			Check(solverType, @"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt",
+				SolutionStatus.Solved);
 		}
 
 		[TestCase(CrosswordSolverType.SingleThreaded)]
 		[TestCase(CrosswordSolverType.MultiThreaded)]
 		public void Winter(CrosswordSolverType solverType)
 		{
+			Check(solverType, @"TestFiles\Winter.txt", @"TestFiles\Winter.solved.txt", 
+				SolutionStatus.PartiallySolved);
+		}
+
+		private void Check(CrosswordSolverType solverType, string inputPath, string correctOutputPath,
+			SolutionStatus expectedSolutionStatus)
+		{
 			var solver = GetSolver(solverType);
-			var inputFilePath = @"TestFiles\Winter.txt";
 			var outputFilePath = Path.GetRandomFileName();
-			var correctOutputFilePath = @"TestFiles\Winter.solved.txt";
-			var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
-			Assert.AreEqual(SolutionStatus.PartiallySolved, solutionStatus);
-			CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
+			var solutionStatus = solver.Solve(inputPath, outputFilePath);
+			Assert.AreEqual(expectedSolutionStatus, solutionStatus);
+			CollectionAssert.AreEqual(File.ReadAllText(correctOutputPath), File.ReadAllText(outputFilePath));
+
 		}
 	}
 }
