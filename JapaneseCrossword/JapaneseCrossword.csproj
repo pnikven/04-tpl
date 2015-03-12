@@ -48,37 +48,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Block.cs" />
-    <Compile Include="CellState.cs" />
-    <Compile Include="CellStateExtensions.cs" />
-    <Compile Include="CharExtensions.cs" />
+    <Compile Include="Solvers\Utils\Block.cs" />
+    <Compile Include="Enums\CellState.cs" />
+    <Compile Include="Enums\Extensions\CellStateExtensions.cs" />
+    <Compile Include="Extensions\CharExtensions.cs" />
     <Compile Include="Crossword.cs" />
-    <Compile Include="CrosswordSolver.cs" />
-    <Compile Include="IBlock.cs" />
-    <Compile Include="ICrossword.cs" />
-    <Compile Include="ICrosswordSolver.cs" />
-    <Compile Include="ICrosswordSolverAlgorithm.cs" />
-    <Compile Include="ILine.cs" />
-    <Compile Include="ILineAnalysisResult.cs" />
-    <Compile Include="ILineAnalyzer.cs" />
-    <Compile Include="ILineProvider.cs" />
-    <Compile Include="IteratedLineAnalysis.cs" />
-    <Compile Include="Line.cs" />
-    <Compile Include="LineAnalysisResult.cs" />
-    <Compile Include="LineAnalyzer.cs" />
-    <Compile Include="LineProvider.cs" />
-    <Compile Include="LineType.cs" />
-    <Compile Include="LineTypeExtensions.cs" />
-    <Compile Include="MultiThreadedIteratedLineAnalysis.cs" />
+    <Compile Include="Solvers\CrosswordSolver.cs" />
+    <Compile Include="Solvers\Utils\Interfaces\IBlock.cs" />
+    <Compile Include="Interfaces\ICrossword.cs" />
+    <Compile Include="Solvers\Interfaces\ICrosswordSolver.cs" />
+    <Compile Include="Solvers\Algoritms\Interfaces\ICrosswordSolverAlgorithm.cs" />
+    <Compile Include="Solvers\Utils\Interfaces\ILine.cs" />
+    <Compile Include="Solvers\Algoritms\Utils\Interfaces\ILineAnalysisResult.cs" />
+    <Compile Include="Solvers\Algoritms\Utils\Interfaces\ILineAnalyzer.cs" />
+    <Compile Include="Solvers\Utils\Interfaces\ILineProvider.cs" />
+    <Compile Include="Solvers\Algoritms\IteratedLineAnalysis.cs" />
+    <Compile Include="Solvers\Utils\Line.cs" />
+    <Compile Include="Solvers\Algoritms\Utils\LineAnalysisResult.cs" />
+    <Compile Include="Solvers\Algoritms\Utils\LineAnalyzer.cs" />
+    <Compile Include="Solvers\Utils\LineProvider.cs" />
+    <Compile Include="Solvers\Utils\Enums\LineType.cs" />
+    <Compile Include="Solvers\Utils\Enums\Extensions\LineTypeExtensions.cs" />
+    <Compile Include="Solvers\Algoritms\MultiThreadedIteratedLineAnalysis.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SolutionStatus.cs" />
-    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Enums\SolutionStatus.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
