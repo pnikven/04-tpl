@@ -3,6 +3,7 @@ using JapaneseCrossword.Enums;
 
 namespace JapaneseCrossword.Extensions
 {
+	// Аналогично StringExtensions
 	public static class CharExtensions
 	{
 		public static CellState ToCellState(this char c)

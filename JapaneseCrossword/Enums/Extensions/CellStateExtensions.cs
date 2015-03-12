@@ -4,6 +4,7 @@ using MoreLinq;
 
 namespace JapaneseCrossword.Enums.Extensions
 {
+	// Расширение для енума намекает на то, что нужно сделать из него полноценный класс
 	public static class CellStateExtensions
 	{
 		public static bool IsKnown(this CellState cellState)

@@ -26,10 +26,12 @@ namespace JapaneseCrossword
 			var outputFilePath = args[1];
 			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
+			// этот метод точно нужен всем строкам? Почему он сделан в виде расширения стандартного класса?
 			Func<string, string> readFile = inputPath => inputPath.TryReadUtf8FileFromThisPath();
 			Func<string, string, bool> writeFile = (outputPath, contents) => outputPath.TryWriteUtf8FileToThisPath(contents);
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
 			ICrosswordSolver multiThreadedSolver = new CrosswordSolver(
+				//передается именно кроссворд, можно не уточнять, в каком виде в названии переменной
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
 				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),

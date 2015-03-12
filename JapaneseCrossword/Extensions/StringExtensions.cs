@@ -7,6 +7,11 @@ using MoreLinq;
 
 namespace JapaneseCrossword.Extensions
 {
+	// Вообще, расширения - очень удобный инструмент, но важно не путать методы, которые действительно расширяют функционал базового класса
+	// и методы, которые просто принимают в качестве аргумента единственный параметр определенного типа.
+	// В данном классе ни один метод не имеет отношения к строкам в общем, все они должны быть реализованы в конкретных классах, которые 
+	// знают что-то про контекст текущей задачи.
+	// Хорошая статья на тему: http://blogs.msdn.com/b/vbteam/archive/2007/03/10/extension-methods-best-practices-extension-methods-part-6.aspx
 	public static class StringExtensions
 	{
 		public static CellState[] ToCellStateLine(this string s)
