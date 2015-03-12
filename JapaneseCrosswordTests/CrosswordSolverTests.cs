@@ -3,6 +3,7 @@ using System.IO;
 using JapaneseCrossword;
 using JapaneseCrossword.Enums;
 using JapaneseCrossword.Enums.Extensions;
+using JapaneseCrossword.Extensions;
 using JapaneseCrossword.Solvers;
 using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
@@ -43,13 +44,17 @@ namespace JapaneseCrosswordTests
 		{
 			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
+			Func<string, string> readFile = inputFilePath => inputFilePath.TryReadUtf8FileFromThisPath();
+			Func<string, string, bool> writeFile = (outputFile, contents) => outputFile.TryWriteUtf8FileToThisPath(contents);
 
 			ICrosswordSolverAlgorithm singleThreadedSolverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);
 			singleThreadedSolver = new CrosswordSolver(
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
 				(picture, lines) => singleThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				picture => picture.AsString()
+				picture => picture.AsString(),
+				readFile,
+				writeFile
 			);
 
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
@@ -57,7 +62,9 @@ namespace JapaneseCrosswordTests
 				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
 				lineProvider.GetLines,
 				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				picture => picture.AsString()
+				picture => picture.AsString(),
+				readFile,
+				writeFile
 			);
 		}
 

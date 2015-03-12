@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using JapaneseCrossword.Enums;
 using MoreLinq;
 
@@ -30,6 +32,35 @@ namespace JapaneseCrossword.Extensions
 				i++;
 			});
 			return result;
+		}
+
+		public static string TryReadUtf8FileFromThisPath(this string filePath)
+		{
+			if (!File.Exists(filePath))
+				return null;
+			try
+			{
+				return File.ReadAllText(filePath, Encoding.UTF8);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		public static bool TryWriteUtf8FileToThisPath(this string filePath, string contents)
+		{
+			if (Path.GetInvalidFileNameChars().Any(filePath.Contains))
+				return false;
+			try
+			{
+				File.WriteAllText(filePath, contents, Encoding.UTF8);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 	}
 }

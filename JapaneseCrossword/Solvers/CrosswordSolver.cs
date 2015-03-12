@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using JapaneseCrossword.Enums;
+using JapaneseCrossword.Extensions;
 using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Interfaces;
 using JapaneseCrossword.Solvers.Utils.Interfaces;
@@ -16,24 +15,27 @@ namespace JapaneseCrossword.Solvers
 		private readonly Func<ICrossword, IEnumerable<ILine>> getLines;
 		private readonly Func<CellState[,], ILine[], CellState[,]> solveCrossword;
 		private readonly Func<CellState[,], string> createOutputTextResult;
+		private readonly Func<string, string> readFile;
+		private readonly Func<string, string, bool> writeFile;
 
 		public CrosswordSolver(Func<string, ICrossword> createCrossword,
 			Func<ICrossword, IEnumerable<ILine>> getLines,
 			Func<CellState[,], ILine[], CellState[,]> solveCrossword,
-			Func<CellState[,], string> createOutputTextResult)
+			Func<CellState[,], string> createOutputTextResult,
+			Func<string, string> readFile,
+			Func<string, string, bool> writeFile)
 		{
 			this.createCrossword = createCrossword;
 			this.getLines = getLines;
 			this.solveCrossword = solveCrossword;
 			this.createOutputTextResult = createOutputTextResult;
+			this.readFile = readFile;
+			this.writeFile = writeFile;
 		}
 
 		public SolutionStatus Solve(string inputFilePath, string outputFilePath)
 		{
-			if (Path.GetInvalidFileNameChars().Any(outputFilePath.Contains))
-				return SolutionStatus.BadOutputFilePath;
-
-			var crosswordAsPlainText = TryReadInputFile(inputFilePath);
+			var crosswordAsPlainText = readFile(inputFilePath);
 			if (crosswordAsPlainText == null)
 				return SolutionStatus.BadInputFilePath;
 
@@ -46,35 +48,10 @@ namespace JapaneseCrossword.Solvers
 			var solvedCrossword = solveCrossword(sourcePicture, lines);
 			var outputResult = createOutputTextResult(solvedCrossword);
 
-			if (!TryWriteOutputFile(outputFilePath, outputResult))
+			if (!writeFile(outputFilePath, outputResult))
 				return SolutionStatus.BadOutputFilePath;
 
 			return outputResult.Contains('?') ? SolutionStatus.PartiallySolved : SolutionStatus.Solved;
-		}
-
-		private string TryReadInputFile(string inputFilePath)
-		{
-			try
-			{
-				return File.ReadAllText(inputFilePath, Encoding.UTF8);
-			}
-			catch
-			{
-				return null;
-			}
-		}
-
-		private bool TryWriteOutputFile(string outputFilePath, string contents)
-		{
-			try
-			{
-				File.WriteAllText(outputFilePath, contents, Encoding.UTF8);
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
 		}
 	}
 }
