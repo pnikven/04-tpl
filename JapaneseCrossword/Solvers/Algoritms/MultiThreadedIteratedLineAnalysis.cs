@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using JapaneseCrossword.Enums;
 using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
@@ -15,7 +14,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 		{
 		}
 
-		public override Cell[,] SolveCrossword(ICrosswordDescription crosswordDescription)
+		protected override Cell[,] SolveCrosswordUnsafe(ICrosswordDescription crosswordDescription)
 		{
 			var picture = CreatePicture(crosswordDescription);
 			var lines = GetLines(crosswordDescription).ToArray();

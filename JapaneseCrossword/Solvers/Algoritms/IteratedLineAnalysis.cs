@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using JapaneseCrossword.Enums;
 using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
@@ -19,7 +18,19 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			this.lineAnalyzer = lineAnalyzer;
 		}
 
-		public virtual Cell[,] SolveCrossword(ICrosswordDescription crosswordDescription)
+		public Cell[,] SolveCrossword(ICrosswordDescription crosswordDescription)
+		{
+			try
+			{
+				return SolveCrosswordUnsafe(crosswordDescription);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		protected virtual Cell[,] SolveCrosswordUnsafe(ICrosswordDescription crosswordDescription)
 		{
 			var picture = CreatePicture(crosswordDescription);
 			Enumerable.Range(0, crosswordDescription.RowCount)

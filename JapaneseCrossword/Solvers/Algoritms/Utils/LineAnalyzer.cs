@@ -1,5 +1,4 @@
 using System.Linq;
-using JapaneseCrossword.Enums;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
 using MoreLinq;

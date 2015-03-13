@@ -25,6 +25,11 @@ namespace JapaneseCrossword.Enums
         /// <description>
         /// Кроссворд решён полностью
         /// </description>
-        Solved
+        Solved,
+
+		/// <summary>
+		/// Произошла ошибка при решении кроссворда
+		/// </summary>
+		Error
     }
 }

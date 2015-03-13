@@ -29,6 +29,8 @@ namespace JapaneseCrossword.Solvers
 				return SolutionStatus.IncorrectCrossword;
 
 			var solvedCrossword = algorithm.SolveCrossword(crosswordDescription);
+			if (solvedCrossword == null)
+				return SolutionStatus.Error;
 
 			var outputResult = ConvertPictureToString(solvedCrossword);
 			if (!TryWriteFile(outputFilePath, outputResult))
