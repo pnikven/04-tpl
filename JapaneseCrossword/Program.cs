@@ -11,7 +11,19 @@ namespace JapaneseCrossword
 {
 	class Program
 	{
-		static void Main(string[] args)
+		private static void Main(string[] args)
+		{
+			try
+			{
+				Run(args);
+			}
+			catch
+			{
+				Environment.Exit(0);
+			}
+		}
+
+		private static void Run(string[] args)
 		{
 			if (args.Length != 2)
 			{
@@ -24,8 +36,15 @@ namespace JapaneseCrossword
 			var lineAnalyzer = new LineAnalyzer();
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
 			ICrosswordSolver multiThreadedSolver = new CrosswordSolver(multiThreadedSolverAlgorithm);
-			var solutionStatus = multiThreadedSolver.Solve(inputFilePath, outputFilePath);
-			Console.WriteLine("Done! Solution status: {0}", solutionStatus);
+			try
+			{
+				var solutionStatus = multiThreadedSolver.Solve(inputFilePath, outputFilePath);
+				Console.WriteLine("Done! Solution status: {0}", solutionStatus);
+			}
+			catch
+			{
+				Console.WriteLine("Sorry, an error occurred");
+			}
 		}
 	}
 }
