@@ -50,7 +50,6 @@
     <Compile Include="CrosswordTests.cs" />
     <Compile Include="IteratedLineAnalysisTests.cs" />
     <Compile Include="LineAnalyzerTests.cs" />
-    <Compile Include="LineProviderTests.cs" />
     <Compile Include="LineTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

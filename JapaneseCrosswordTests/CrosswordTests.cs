@@ -1,6 +1,5 @@
 ﻿using System;
 using JapaneseCrossword;
-using JapaneseCrossword.Enums;
 using JapaneseCrossword.Interfaces;
 using NUnit.Framework;
 
@@ -9,8 +8,8 @@ namespace JapaneseCrosswordTests
 	[TestFixture]
 	class CrosswordTests
 	{
-		private readonly Func<string, ICrossword> createCrossword =
-			crosswordAsPlainText => new Crossword(crosswordAsPlainText);
+		private readonly Func<string, ICrosswordDescription> createCrossword =
+			CrosswordDescription.Create;
 
 		[Test]
 		public void Crossword_SampleInput_CreatedCorrectly()
@@ -43,20 +42,5 @@ namespace JapaneseCrosswordTests
 
 			Assert.AreEqual(isCorrect, crossword.IsCorrect);
 		}
-
-		[Test]
-		public void InitializePicture()
-		{
-			var input = "rows: 2  \n 3 \n 1 \n columns: 3 \n 1 \n 2 \n 1";
-
-			var crossword = createCrossword(input);
-
-			Assert.AreEqual(new[,]
-			{
-				{ CellState.Unknown, CellState.Unknown,  CellState.Unknown},  
-				{ CellState.Unknown, CellState.Unknown, CellState.Unknown }
-			}, crossword.Picture);
-		}
-
 	}
 }

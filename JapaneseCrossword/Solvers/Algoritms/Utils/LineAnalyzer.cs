@@ -1,6 +1,5 @@
 using System.Linq;
 using JapaneseCrossword.Enums;
-using JapaneseCrossword.Enums.Extensions;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils.Interfaces;
 using MoreLinq;
@@ -11,7 +10,7 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 	{
 		private const int MinSpaceBetweenBlocks = 1;
 
-		public ILineAnalysisResult Analyze(ILine line, CellState[] cells)
+		public ILineAnalysisResult Analyze(ILine line, Cell[] cells)
 		{
 			var canBeFilled = new bool[cells.Length];
 			var canBeEmpty = new bool[cells.Length];
@@ -33,25 +32,25 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 			Enumerable.Range(0, blockStartPosition).ForEach(i => canBeEmpty[i] = true);
 		}
 
-		private bool TryBlock(IBlock block, int start, ILine line, CellState[] cells, bool[] canBeEmpty, bool[] canBeFilled)
+		private bool TryBlock(IBlock block, int start, ILine line, Cell[] cells, bool[] canBeEmpty, bool[] canBeFilled)
 		{
 			if (cells
 				.Skip(start)
 				.Take(block.Length)
-				.Any(state => state.IsEmpty()))
+				.Any(cell => cell.IsEmpty))
 				return false;
 
 			if (IsFirstBlockInLine(block) &&
 				cells
 					.Take(start)
-					.Any(state => state.IsFilled()))
+					.Any(cell => cell.IsFilled))
 				return false;
 
 			if (IsLastBlockInLine(block, line))
 			{
 				if (cells
 					.Skip(start + block.Length)
-					.Any(state => state.IsFilled()))
+					.Any(cell => cell.IsFilled))
 					return false;
 				UpdateFilledOnBlock(block, start, canBeFilled);
 				UpdateEmptyAfterBlock(block, start, canBeEmpty);
@@ -78,18 +77,18 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 			return result;
 		}
 
-		private bool NoFilledCellsBetweenCurrentAndNextBlocks(int endPositionOfCurrentBlock, int nextStart, CellState[] cells)
+		private bool NoFilledCellsBetweenCurrentAndNextBlocks(int endPositionOfCurrentBlock, int nextStart, Cell[] cells)
 		{
 			return cells
 				.Skip(endPositionOfCurrentBlock + 1)
 				.Take(nextStart - endPositionOfCurrentBlock - 1)
-				.All(state => state.IsNotFilled());
+				.All(state => state.IsNotFilled);
 		}
 
-		private static bool MinEmptySpaceBeforeNextBlockExists(CellState[] cells, int nextStart)
+		private static bool MinEmptySpaceBeforeNextBlockExists(Cell[] cells, int nextStart)
 		{
 			return Enumerable.Range(nextStart - MinSpaceBetweenBlocks, MinSpaceBetweenBlocks)
-				.All(pos => cells[pos].IsNotFilled());
+				.All(pos => cells[pos].IsNotFilled);
 		}
 
 		private void UpdateEmptyAfterBlockBeforeNextBlock(IBlock block, int start, int startNext, bool[] canBeEmpty)

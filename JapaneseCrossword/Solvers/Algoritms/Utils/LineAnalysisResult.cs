@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using JapaneseCrossword.Enums;
-using JapaneseCrossword.Enums.Extensions;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 
 namespace JapaneseCrossword.Solvers.Algoritms.Utils
@@ -11,7 +10,7 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 		private readonly bool[] canBeFilled;
 		private readonly bool[] canBeEmpty;
 
-		public CellState[] Cells
+		public Cell[] Cells
 		{
 			get
 			{
@@ -19,6 +18,7 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 					.Select(i => canBeFilled[i] ^ canBeEmpty[i] ?
 						(canBeFilled[i] ? CellState.Filled : CellState.Empty) :
 						CellState.Unknown)
+					.Select(Cell.Create)
 					.ToArray();
 			}
 		}

@@ -1,64 +1,74 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
+using System.Text;
 using JapaneseCrossword.Enums;
-using JapaneseCrossword.Interfaces;
+using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Interfaces;
-using JapaneseCrossword.Solvers.Utils.Interfaces;
+using MoreLinq;
 
 namespace JapaneseCrossword.Solvers
 {
 	public class CrosswordSolver : ICrosswordSolver
 	{
-		// Зачем тут столько функций? Почему бы не передавать ILineProvider вместо Func<ICrossword, IEnumerable<ILine>> getLines, например?
-		private readonly Func<string, ICrossword> createCrossword;
-		private readonly Func<ICrossword, IEnumerable<ILine>> getLines;
-		// Кто же может указывать классу, с названием CrosswordSolver, как ему надо решать кроссворд?
-		private readonly Func<CellState[,], ILine[], CellState[,]> solveCrossword;
-		private readonly Func<CellState[,], string> createOutputTextResult;
-		// Какие есть варианты конфигурации этих полей? Если дело только в кодировке - не стоит так усложнять
-		private readonly Func<string, string> readFile;
-		private readonly Func<string, string, bool> writeFile;
+		private readonly ICrosswordSolverAlgorithm algorithm;
 
-		// Вообще, жалко этот класс: почему у него все кишки наружу торчат?
-		// Давай сделаем так, чтобы ему можно было задать алгоритм для решения, причем сделать это как-нибудь по-простому,
-		// поскольку все алгоритмы реализуют общий интерфейс, 
-		// а работу с файлами, форматами и сохранением оставим тут - кажется, они не должны быть очень уж гибкими и конфигурируемыми.
-
-		public CrosswordSolver(Func<string, ICrossword> createCrossword,
-			Func<ICrossword, IEnumerable<ILine>> getLines,
-			Func<CellState[,], ILine[], CellState[,]> solveCrossword,
-			Func<CellState[,], string> createOutputTextResult,
-			Func<string, string> readFile,
-			Func<string, string, bool> writeFile)
+		public CrosswordSolver(ICrosswordSolverAlgorithm algorithm)
 		{
-			this.createCrossword = createCrossword;
-			this.getLines = getLines;
-			this.solveCrossword = solveCrossword;
-			this.createOutputTextResult = createOutputTextResult;
-			this.readFile = readFile;
-			this.writeFile = writeFile;
+			this.algorithm = algorithm;
 		}
 
 		public SolutionStatus Solve(string inputFilePath, string outputFilePath)
 		{
-			var crosswordAsPlainText = readFile(inputFilePath);
-			if (crosswordAsPlainText == null)
+			var crossword = TryReadFile(inputFilePath);
+			if (crossword == null)
 				return SolutionStatus.BadInputFilePath;
 
-			var crossword = createCrossword(crosswordAsPlainText);
-			if (!crossword.IsCorrect)
+			var crosswordDescription = CrosswordDescription.Create(crossword);
+			if (crosswordDescription == null || !crosswordDescription.IsCorrect)
 				return SolutionStatus.IncorrectCrossword;
 
-			var sourcePicture = new CellState[crossword.RowCount, crossword.ColumnCount];
-			var lines = getLines(crossword).ToArray();
-			var solvedCrossword = solveCrossword(sourcePicture, lines);
-			var outputResult = createOutputTextResult(solvedCrossword);
+			var solvedCrossword = algorithm.SolveCrossword(crosswordDescription);
 
-			if (!writeFile(outputFilePath, outputResult))
+			var outputResult = ConvertPictureToString(solvedCrossword);
+			if (!TryWriteFile(outputFilePath, outputResult))
 				return SolutionStatus.BadOutputFilePath;
 
 			return outputResult.Contains('?') ? SolutionStatus.PartiallySolved : SolutionStatus.Solved;
+		}
+
+		public static string ConvertPictureToString(Cell[,] picture)
+		{
+			return string.Format("{0}\r\n",
+				Enumerable.Range(0, picture.GetLength(0))
+				.Cartesian(Enumerable.Range(0, picture.GetLength(1)), (i, j) => picture[i, j].ToChar())
+				.Batch(picture.GetLength(1))
+				.Select(x => x.ToDelimitedString(""))
+				.ToDelimitedString("\r\n"));
+		}
+
+		private string TryReadFile(string filePath)
+		{
+			try
+			{
+				return File.ReadAllText(filePath, Encoding.UTF8);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		private bool TryWriteFile(string filePath, string contents)
+		{
+			try
+			{
+				File.WriteAllText(filePath, contents, Encoding.UTF8);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 	}
 }

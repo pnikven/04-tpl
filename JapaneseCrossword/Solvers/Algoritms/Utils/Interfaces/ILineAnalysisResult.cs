@@ -4,6 +4,6 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces
 {
 	public interface ILineAnalysisResult
 	{
-		CellState[] Cells { get; }
+		Cell[] Cells { get; }
 	}
 }

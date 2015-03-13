@@ -1,14 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using JapaneseCrossword.Enums.Extensions;
-using JapaneseCrossword.Extensions;
 using JapaneseCrossword.Solvers;
 using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils;
 using JapaneseCrossword.Solvers.Interfaces;
-using JapaneseCrossword.Solvers.Utils;
 
 namespace JapaneseCrossword
 {
@@ -24,21 +21,9 @@ namespace JapaneseCrossword
 			}
 			var inputFilePath = args[0];
 			var outputFilePath = args[1];
-			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
-			// этот метод точно нужен всем строкам? Почему он сделан в виде расширения стандартного класса?
-			Func<string, string> readFile = inputPath => inputPath.TryReadUtf8FileFromThisPath();
-			Func<string, string, bool> writeFile = (outputPath, contents) => outputPath.TryWriteUtf8FileToThisPath(contents);
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
-			ICrosswordSolver multiThreadedSolver = new CrosswordSolver(
-				//передается именно кроссворд, можно не уточнять, в каком виде в названии переменной
-				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
-				lineProvider.GetLines,
-				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				picture => picture.AsString(),
-				readFile,
-				writeFile
-			);
+			ICrosswordSolver multiThreadedSolver = new CrosswordSolver(multiThreadedSolverAlgorithm);
 			var solutionStatus = multiThreadedSolver.Solve(inputFilePath, outputFilePath);
 			Console.WriteLine("Done! Solution status: {0}", solutionStatus);
 		}

@@ -2,16 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using JapaneseCrossword;
 using JapaneseCrossword.Enums;
-using JapaneseCrossword.Enums.Extensions;
-using JapaneseCrossword.Extensions;
 using JapaneseCrossword.Solvers;
 using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils;
 using JapaneseCrossword.Solvers.Interfaces;
-using JapaneseCrossword.Solvers.Utils;
 using MoreLinq;
 using NUnit.Framework;
 
@@ -45,30 +41,13 @@ namespace JapaneseCrosswordTests
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			var lineProvider = new LineProvider();
 			var lineAnalyzer = new LineAnalyzer();
-			Func<string, string> readFile = inputPath => inputPath.TryReadUtf8FileFromThisPath();
-			Func<string, string, bool> writeFile = (outputFile, contents) => outputFile.TryWriteUtf8FileToThisPath(contents);
 
 			ICrosswordSolverAlgorithm singleThreadedSolverAlgorithm = new IteratedLineAnalysis(lineAnalyzer);
-			singleThreadedSolver = new CrosswordSolver(
-				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
-				lineProvider.GetLines,
-				(picture, lines) => singleThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				picture => picture.AsString(),
-				readFile,
-				writeFile
-			);
+			singleThreadedSolver = new CrosswordSolver(singleThreadedSolverAlgorithm);
 
 			ICrosswordSolverAlgorithm multiThreadedSolverAlgorithm = new MultiThreadedIteratedLineAnalysis(lineAnalyzer);
-			multiThreadedSolver = new CrosswordSolver(
-				crosswordAsPlainText => new Crossword(crosswordAsPlainText),
-				lineProvider.GetLines,
-				(picture, lines) => multiThreadedSolverAlgorithm.SolveCrossword(picture, lines),
-				picture => picture.AsString(),
-				readFile,
-				writeFile
-			);
+			multiThreadedSolver = new CrosswordSolver(multiThreadedSolverAlgorithm);
 		}
 
 		[TestCase(CrosswordSolverType.SingleThreaded)]
@@ -154,7 +133,7 @@ namespace JapaneseCrosswordTests
 			var stringFormat = "{0,15}{1,15}{2,15}{3,15}";
 			Console.WriteLine(stringFormat, "TestFile", "SingleThreaded", "MultiThreaded", "SpeedUp");
 			testFiles
-				.Cartesian(solverTypes, Tuple.Create)
+				.Cartesian<string, CrosswordSolverType, Tuple<string, CrosswordSolverType>>(solverTypes, Tuple.Create)
 				.Batch(solverTypes.Length)
 				.ForEach(solvers =>
 				{

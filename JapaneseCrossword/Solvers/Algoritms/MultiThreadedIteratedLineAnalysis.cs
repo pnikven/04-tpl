@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using JapaneseCrossword.Enums;
+using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils.Enums;
 using JapaneseCrossword.Solvers.Utils.Interfaces;
@@ -14,9 +15,10 @@ namespace JapaneseCrossword.Solvers.Algoritms
 		{
 		}
 
-		public override CellState[,] SolveCrossword(CellState[,] sourcePicture, ILine[] lines)
+		public override Cell[,] SolveCrossword(ICrosswordDescription crosswordDescription)
 		{
-			var picture = new CellState[sourcePicture.GetLength(0), sourcePicture.GetLength(1)];
+			var picture = CreatePicture(crosswordDescription);
+			var lines = GetLines(crosswordDescription).ToArray();
 			while (true)
 			{
 				var invalidLines = GetInvalidLines(lines);
@@ -28,7 +30,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
-		private void AnalyzeInvalidLinesOfTheSameType(LineType lineType, ILine[] invalidLines, ILine[] allLines, CellState[,] picture)
+		private void AnalyzeInvalidLinesOfTheSameType(LineType lineType, ILine[] invalidLines, ILine[] allLines, Cell[,] picture)
 		{
 			var tasks = invalidLines
 				.Where(line => line.Type == lineType)
