@@ -5,13 +5,13 @@ namespace JapaneseCrossword.Enums
 {
 	public class Cell
 	{
-		private readonly bool isUnknown;
-		private readonly bool isEmpty;
-		private readonly bool isFilled;
+		public bool IsUnknown { get; private set; }
+		public bool IsEmpty { get; private set; }
+		public bool IsFilled { get; private set; }
 
 		public Cell()
 		{
-			isUnknown = true;
+			IsUnknown = true;
 		}
 
 		public static Cell Create(CellState cellState)
@@ -52,34 +52,19 @@ namespace JapaneseCrossword.Enums
 
 		public bool IsKnown
 		{
-			get { return !isUnknown; }
-		}
-
-		public bool IsUnknown
-		{
-			get { return isUnknown; }
-		}
-
-		public bool IsEmpty
-		{
-			get { return isEmpty; }
-		}
-
-		public bool IsFilled
-		{
-			get { return isFilled; }
+			get { return !IsUnknown; }
 		}
 
 		public bool IsNotFilled
 		{
-			get { return !isFilled; }
+			get { return !IsFilled; }
 		}
 
 		public char ToChar()
 		{
-			if (isUnknown) return '?';
-			if (isEmpty) return '.';
-			if (isFilled) return '*';
+			if (IsUnknown) return '?';
+			if (IsEmpty) return '.';
+			if (IsFilled) return '*';
 			throw new Exception("cellState not set");
 		}
 
@@ -93,28 +78,28 @@ namespace JapaneseCrossword.Enums
 
 		protected bool Equals(Cell other)
 		{
-			return 
-				isEmpty == other.isEmpty && 
-				isFilled == other.isFilled && 
-				isUnknown == other.isUnknown;
+			return
+				IsEmpty == other.IsEmpty &&
+				IsFilled == other.IsFilled &&
+				IsUnknown == other.IsUnknown;
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				var hashCode = isUnknown.GetHashCode();
-				hashCode = (hashCode * 397) ^ isEmpty.GetHashCode();
-				hashCode = (hashCode * 397) ^ isFilled.GetHashCode();
+				var hashCode = IsUnknown.GetHashCode();
+				hashCode = (hashCode * 397) ^ IsEmpty.GetHashCode();
+				hashCode = (hashCode * 397) ^ IsFilled.GetHashCode();
 				return hashCode;
 			}
 		}
 
 		private Cell(bool isUnknown, bool isEmpty, bool isFilled)
 		{
-			this.isUnknown = isUnknown;
-			this.isEmpty = isEmpty;
-			this.isFilled = isFilled;
+			IsUnknown = isUnknown;
+			IsEmpty = isEmpty;
+			IsFilled = isFilled;
 		}
 	}
 }
