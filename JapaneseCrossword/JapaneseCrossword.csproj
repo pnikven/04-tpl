@@ -48,16 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums\Cell.cs" />
+    <Compile Include="Solvers\Utils\Cell.cs" />
     <Compile Include="Solvers\Utils\Block.cs" />
-    <Compile Include="Enums\CellState.cs" />
+    <Compile Include="Solvers\Utils\Enums\CellState.cs" />
     <Compile Include="CrosswordDescription.cs" />
     <Compile Include="Solvers\CrosswordSolver.cs" />
-    <Compile Include="Solvers\Utils\Interfaces\IBlock.cs" />
     <Compile Include="Interfaces\ICrosswordDescription.cs" />
     <Compile Include="Solvers\Interfaces\ICrosswordSolver.cs" />
     <Compile Include="Solvers\Algoritms\Interfaces\ICrosswordSolverAlgorithm.cs" />
-    <Compile Include="Solvers\Utils\Interfaces\ILine.cs" />
     <Compile Include="Solvers\Algoritms\Utils\Interfaces\ILineAnalysisResult.cs" />
     <Compile Include="Solvers\Algoritms\Utils\Interfaces\ILineAnalyzer.cs" />
     <Compile Include="Solvers\Algoritms\IteratedLineAnalysis.cs" />
@@ -65,7 +63,6 @@
     <Compile Include="Solvers\Algoritms\Utils\LineAnalysisResult.cs" />
     <Compile Include="Solvers\Algoritms\Utils\LineAnalyzer.cs" />
     <Compile Include="Solvers\Utils\Enums\LineType.cs" />
-    <Compile Include="Solvers\Utils\Enums\Extensions\LineTypeExtensions.cs" />
     <Compile Include="Solvers\Algoritms\MultiThreadedIteratedLineAnalysis.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using JapaneseCrossword.Enums;
 using JapaneseCrossword.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
 using JapaneseCrossword.Solvers.Utils.Enums;
-using JapaneseCrossword.Solvers.Utils.Interfaces;
 
 namespace JapaneseCrossword.Solvers.Algoritms
 {
@@ -30,7 +30,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
-		private void AnalyzeInvalidLinesOfTheSameType(LineType lineType, ILine[] invalidLines, ILine[] allLines, Cell[,] picture)
+		private void AnalyzeInvalidLinesOfTheSameType(LineType lineType, Line[] invalidLines, Line[] allLines, Cell[,] picture)
 		{
 			var tasks = invalidLines
 				.Where(line => line.Type == lineType)

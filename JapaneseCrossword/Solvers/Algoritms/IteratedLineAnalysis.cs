@@ -6,8 +6,6 @@ using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
 using JapaneseCrossword.Solvers.Utils.Enums;
-using JapaneseCrossword.Solvers.Utils.Enums.Extensions;
-using JapaneseCrossword.Solvers.Utils.Interfaces;
 using MoreLinq;
 
 namespace JapaneseCrossword.Solvers.Algoritms
@@ -48,14 +46,14 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
-		protected ILine[] GetInvalidLines(ILine[] lines)
+		protected Line[] GetInvalidLines(Line[] lines)
 		{
 			return lines
 				.Where(line => line.NeedRefresh)
 				.ToArray();
 		}
 
-		protected void AnalyzeLine(ILine[] lines, ILine line, Cell[,] picture)
+		protected void AnalyzeLine(Line[] lines, Line line, Cell[,] picture)
 		{
 			line.Refresh();
 			var cells = CreateCells(line, picture);
@@ -69,19 +67,24 @@ namespace JapaneseCrossword.Solvers.Algoritms
 				});
 		}
 
-		private void UpdatePicture(ILine line, Cell[,] picture, int cellIndex, Cell[] cells)
+		private void UpdatePicture(Line line, Cell[,] picture, int cellIndex, Cell[] cells)
 		{
-			if (line.Type.IsRow())
+			if (line.Type == LineType.Row)
 				picture[line.Index, cellIndex] = cells[cellIndex];
 			else
 				picture[cellIndex, line.Index] = cells[cellIndex];
 		}
 
-		private void InvalidateCrossLine(ILine[] lines, LineType currentLineType, int cellIndex)
+		private void InvalidateCrossLine(Line[] lines, LineType lineType, int cellIndex)
 		{
 			lines
-				.First(l => l.Type == currentLineType.Reverse() && l.Index == cellIndex)
+				.First(l => l.Type == ReverseLineType(lineType) && l.Index == cellIndex)
 				.Invalidate();
+		}
+
+		protected LineType ReverseLineType(LineType lineType)
+		{
+			return lineType == LineType.Row ? LineType.Column : LineType.Row;
 		}
 
 		private bool UpdateCell(Cell[] cells, int cellIndex, ILineAnalysisResult analysisResult)
@@ -92,21 +95,21 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return true;
 		}
 
-		private Cell[] CreateCells(ILine line, Cell[,] picture)
+		private Cell[] CreateCells(Line line, Cell[,] picture)
 		{
-			return Enumerable.Range(0, line.Type.IsRow() ? picture.GetLength(1) : picture.GetLength(0))
-				.Select(i => line.Type.IsRow()
+			return Enumerable.Range(0, line.IsRow ? picture.GetLength(1) : picture.GetLength(0))
+				.Select(i => line.IsRow
 					? picture[line.Index, i]
 					: picture[i, line.Index])
 				.ToArray();
 		}
 
-		private IEnumerable<ILine> GetLines(LineType lineType, IEnumerable<int[]> blocks)
+		private IEnumerable<Line> GetLines(LineType lineType, IEnumerable<int[]> blocks)
 		{
 			return blocks.Select((lineBlocks, i) => new Line(lineType, i, lineBlocks));
 		}
 
-		protected IEnumerable<ILine> GetLines(ICrosswordDescription crosswordDescription)
+		protected IEnumerable<Line> GetLines(ICrosswordDescription crosswordDescription)
 		{
 			return
 				GetLines(LineType.Row, crosswordDescription.RowBlocks)

@@ -1,8 +1,6 @@
-﻿using JapaneseCrossword.Solvers.Utils.Interfaces;
-
-namespace JapaneseCrossword.Solvers.Utils
+﻿namespace JapaneseCrossword.Solvers.Utils
 {
-	public class Block : IBlock
+	public class Block
 	{
 		public int Length { get; private set; }
 		public int Index { get; private set; }

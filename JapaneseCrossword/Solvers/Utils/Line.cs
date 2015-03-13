@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JapaneseCrossword.Solvers.Utils.Enums;
-using JapaneseCrossword.Solvers.Utils.Interfaces;
 
 namespace JapaneseCrossword.Solvers.Utils
 {
-	public class Line : ILine
+	public class Line
 	{
 		public LineType Type { get; private set; }
 		public int Index { get; private set; }
 		public bool NeedRefresh { get; private set; }
-		public IEnumerable<IBlock> Blocks { get; private set; }
+		public IEnumerable<Block> Blocks { get; private set; }
 		public int BlockCount { get; private set; }
 
 		public Line(LineType type, int index, int[] blocks)
@@ -30,6 +29,16 @@ namespace JapaneseCrossword.Solvers.Utils
 		public void Invalidate()
 		{
 			NeedRefresh = true;
+		}
+
+		public bool IsRow
+		{
+			get { return Type == LineType.Row; }
+		}
+
+		public bool IsColumn
+		{
+			get { return Type == LineType.Column; }
 		}
 
 		public override bool Equals(object obj)
