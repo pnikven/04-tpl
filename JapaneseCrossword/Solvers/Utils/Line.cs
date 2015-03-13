@@ -10,15 +10,21 @@ namespace JapaneseCrossword.Solvers.Utils
 		public int Index { get; private set; }
 		public bool NeedRefresh { get; private set; }
 		public IEnumerable<Block> Blocks { get; private set; }
-		public int BlockCount { get; private set; }
+		public int BlockCount { get { return Blocks.Count(); } }
 
-		public Line(LineType type, int index, int[] blocks)
+		public Line(LineType type, int index, IEnumerable<Block> blocks)
 		{
 			Type = type;
 			Index = index;
 			NeedRefresh = true;
-			Blocks = blocks.Select((blockLength, i) => new Block(blockLength, i));
-			BlockCount = blocks.Length;
+			Blocks = blocks;
+		}
+
+		public static Line Create(LineType type, int index, int[] blocks)
+		{
+			return blocks == null ?
+				null :
+				new Line(type, index, blocks.Select((blockLength, i) => new Block(blockLength, i)));
 		}
 
 		public void Refresh()

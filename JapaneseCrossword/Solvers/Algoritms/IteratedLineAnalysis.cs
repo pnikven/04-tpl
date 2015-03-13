@@ -106,7 +106,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 
 		private IEnumerable<Line> GetLines(LineType lineType, IEnumerable<int[]> blocks)
 		{
-			return blocks.Select((lineBlocks, i) => new Line(lineType, i, lineBlocks));
+			return blocks.Select((lineBlocks, i) => Line.Create(lineType, i, lineBlocks));
 		}
 
 		protected IEnumerable<Line> GetLines(ICrosswordDescription crosswordDescription)

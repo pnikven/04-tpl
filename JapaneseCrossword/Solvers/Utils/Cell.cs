@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using JapaneseCrossword.Solvers.Utils.Enums;
 
-namespace JapaneseCrossword.Enums
+namespace JapaneseCrossword.Solvers.Utils
 {
 	public class Cell
 	{

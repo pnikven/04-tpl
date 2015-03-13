@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using JapaneseCrossword.Enums;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
+using JapaneseCrossword.Solvers.Utils.Enums;
 
 namespace JapaneseCrossword.Solvers.Algoritms.Utils
 {

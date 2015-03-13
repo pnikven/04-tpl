@@ -23,7 +23,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_OneBlock()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2 });
 			var cells = Cell.Create("???");
 			var canBeFilled = new[] { true, true, true };
 			var canBeEmpty = new[] { true, false, true };
@@ -37,7 +37,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_TwoBlocks()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 1, 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 1, 2 });
 			var cells = Enumerable.Repeat(new Cell(), 5).ToArray();
 			var canBeFilled = new[] { true, true, true, true, true };
 			var canBeEmpty = new[] { true, true, true, false, true };
@@ -51,7 +51,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_ThreeBlocks()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2, 1, 3 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2, 1, 3 });
 			var cells = Enumerable.Repeat(new Cell(), 11).ToArray();
 			var canBeFilled = Enumerable.Repeat(true, 11).ToArray();
 			var canBeEmpty = canBeFilled;
@@ -65,7 +65,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_ThreeBlocksShorterLine()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2, 1, 3 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2, 1, 3 });
 			var cells = Enumerable.Repeat(new Cell(), 9).ToArray();
 			var canBeFilled = Enumerable.Repeat(true, 9).ToArray();
 			var canBeEmpty = new[] { true, false, true, true, true, true, false, false, true };
@@ -79,7 +79,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_OneBlockWithFirstFilledCell()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2 });
 			var cells = Cell.Create("*??");
 			var canBeFilled = new[] { true, true, false };
 			var canBeEmpty = new[] { false, false, true };
@@ -93,7 +93,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_OneBlockWithLastFilledCell()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2 });
 			var cells = Cell.Create("???*");
 			var canBeFilled = new[] { false, false, true, true };
 			var canBeEmpty = new[] { true, true, false, false };
@@ -107,7 +107,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_OneBlockWithFirstEmptyCell()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2 });
 			var cells = Cell.Create(".??");
 			var canBeFilled = new[] { false, true, true };
 			var canBeEmpty = new[] { true, false, false };
@@ -121,7 +121,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_OneBlockWithFirstEmptyCellInLongerLine()
 		{
-			var line = new Line(LineType.Row, 1, new[] { 2 });
+			var line = Line.Create(LineType.Row, 1, new[] { 2 });
 			var cells = Cell.Create(".???");
 			var canBeFilled = new[] { false, true, true, true };
 			var canBeEmpty = new[] { true, true, false, true };
@@ -135,7 +135,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_Row23FromFlower()
 		{
-			var line = new Line(LineType.Row, 23, new[] { 10, 1, 4, 1, 1, 3 });
+			var line = Line.Create(LineType.Row, 23, new[] { 10, 1, 4, 1, 1, 3 });
 			var cells = ConvertStringToCells("???********???*..?***??*.*.***");
 			var expected = ".??********??.*..?***?.*.*.***";
 
@@ -161,7 +161,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_Row23TruncatedFromFlower()
 		{
-			var line = new Line(LineType.Row, 23, new[] { 1, 1, 3 });
+			var line = Line.Create(LineType.Row, 23, new[] { 1, 1, 3 });
 			var cells = ConvertStringToCells("??*.*.***");
 			var expected = "..*.*.***";
 
@@ -175,7 +175,7 @@ namespace JapaneseCrosswordTests
 		[Test]
 		public void Analyze_ObviousRow()
 		{
-			var line = new Line(LineType.Row, 23, new[] { 1, 1 });
+			var line = Line.Create(LineType.Row, 23, new[] { 1, 1 });
 			var cells = ConvertStringToCells("?*?*");
 			var expected = ".*.*";
 

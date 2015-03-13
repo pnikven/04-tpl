@@ -1,5 +1,6 @@
 ﻿using JapaneseCrossword.Enums;
 using JapaneseCrossword.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
 
 namespace JapaneseCrossword.Solvers.Algoritms.Interfaces
 {

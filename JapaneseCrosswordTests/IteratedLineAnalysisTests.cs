@@ -7,6 +7,8 @@ using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
+using JapaneseCrossword.Solvers.Utils.Enums;
 using MoreLinq;
 using NUnit.Framework;
 

@@ -4,6 +4,7 @@ using System.Text;
 using JapaneseCrossword.Enums;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Interfaces;
+using JapaneseCrossword.Solvers.Utils;
 using MoreLinq;
 
 namespace JapaneseCrossword.Solvers
