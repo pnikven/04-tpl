@@ -48,6 +48,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
+		// Здесь не нужно описание всего кроссворда, только размерность, давай не будем ему лишнее сообщать. И метод можно сделать статическим
 		protected Cell[,] CreatePicture(ICrosswordDescription crosswordDescription)
 		{
 			var picture = new Cell[crosswordDescription.RowCount, crosswordDescription.ColumnCount];
@@ -57,6 +58,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
+		// Название метода не соответствует его функции. 
 		protected Line[] GetInvalidLines(Line[] lines)
 		{
 			return lines
@@ -64,10 +66,12 @@ namespace JapaneseCrossword.Solvers.Algoritms
 				.ToArray();
 		}
 
+		// Название параметров нужно немного конкретизировать в соответствии с их смыслом
 		protected void AnalyzeLine(Line[] lines, Line line, Cell[,] picture)
 		{
 			line.Refresh();
 			var cells = CreateCells(line, picture);
+			// Почему где-то var, а где-то - явное указание типа? Кажется, тут не нужно явно указывать тип, можно сэкономить буквы:)
 			ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
 			Enumerable.Range(0, cells.Length)
 				.Where(cellIndex => UpdateCell(cells, cellIndex, analysisResult))
@@ -78,6 +82,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 				});
 		}
 
+		// todo: static
 		private void UpdatePicture(Line line, Cell[,] picture, int cellIndex, Cell[] cells)
 		{
 			if (line.Type == LineType.Row)
@@ -98,6 +103,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return lineType == LineType.Row ? LineType.Column : LineType.Row;
 		}
 
+		// Название метода не соответствует его функции.
 		private bool UpdateCell(Cell[] cells, int cellIndex, ILineAnalysisResult analysisResult)
 		{
 			if (cells[cellIndex].Equals(analysisResult.Cells[cellIndex]))
@@ -120,6 +126,8 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return blocks.Select((lineBlocks, i) => Line.Create(lineType, i, lineBlocks));
 		}
 
+		// Название метода не соответствует его функции.
+		// Хотя бы GetAllLines
 		protected IEnumerable<Line> GetLines(ICrosswordDescription crosswordDescription)
 		{
 			return

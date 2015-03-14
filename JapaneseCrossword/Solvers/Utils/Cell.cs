@@ -6,6 +6,8 @@ namespace JapaneseCrossword.Solvers.Utils
 {
 	public class Cell
 	{
+		// По смыслу это должны быть взаимоисключающие состояния: почему бы не сделать 1 свойство с состоянием типа CellState?
+		// Кажется, это сильно сократит объем кода в этом классе и упростит понимание.
 		public bool IsUnknown { get; private set; }
 		public bool IsEmpty { get; private set; }
 		public bool IsFilled { get; private set; }
