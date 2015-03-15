@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Solvers\Algoritms\Utils\Enums\TryBlockResult.cs" />
     <Compile Include="Solvers\Utils\Cell.cs" />
     <Compile Include="Solvers\Utils\Block.cs" />
     <Compile Include="Solvers\Utils\Enums\CellState.cs" />

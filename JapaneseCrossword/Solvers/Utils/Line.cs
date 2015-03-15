@@ -10,7 +10,7 @@ namespace JapaneseCrossword.Solvers.Utils
 		public int Index { get; private set; }
 		public bool NeedRefresh { get; private set; }
 		public Block[] Blocks { get; private set; }
-		public int BlockCount { get { return Blocks.Count(); } }
+		public int BlockCount { get { return Blocks.Length; } }
 
 		public Line(LineType type, int index, Block[] blocks)
 		{

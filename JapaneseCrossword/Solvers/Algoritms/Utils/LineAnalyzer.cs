@@ -1,3 +1,4 @@
+using JapaneseCrossword.Solvers.Algoritms.Utils.Enums;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
 
@@ -11,15 +12,16 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 		{
 			var canBeFilled = new bool[cells.Length];
 			var canBeEmpty = new bool[cells.Length];
+			var tryBlockResults = new TryBlockResult[line.BlockCount, cells.Length];
 
 			var block = line.Blocks[0];
 			for (var startPosition = 0;
 				startPosition <= GetMaxStartPositionOfBlock(block, line, cells.Length);
 				startPosition++)
-			{
-				if (TryBlock(block, startPosition, line, cells, canBeEmpty, canBeFilled))
+				if (TryBlock(block, startPosition, line, cells, canBeEmpty, canBeFilled, tryBlockResults))
+				{
 					UpdateEmptyBeforeBlock(startPosition, canBeEmpty);
-			}
+				}
 			return new LineAnalysisResult(canBeFilled, canBeEmpty);
 		}
 
@@ -41,25 +43,29 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 				canBeEmpty[i] = true;
 		}
 
-		private bool TryBlock(Block block, int start, Line line, Cell[] cells, bool[] canBeEmpty, bool[] canBeFilled)
+		private bool TryBlock(Block block, int start, Line line, Cell[] cells,
+			bool[] canBeEmpty, bool[] canBeFilled, TryBlockResult[,] tryBlockResults)
 		{
+			if (tryBlockResults[block.Index, start] != TryBlockResult.Unknown)
+				return tryBlockResults[block.Index, start] == TryBlockResult.True;
+
 			for (var i = start; i < start + block.Length; i++)
 				if (cells[i].IsEmpty)
-					return false;
+					return MemorizeAndReturnResult(block, start, tryBlockResults, false);
 
 			if (IsFirstBlockInLine(block))
 				for (var i = 0; i < start; i++)
 					if (cells[i].IsFilled)
-						return false;
+						return MemorizeAndReturnResult(block, start, tryBlockResults, false);
 
 			if (IsLastBlockInLine(block, line))
 			{
 				for (var i = start + block.Length; i < cells.Length; i++)
 					if (cells[i].IsFilled)
-						return false;
+						return MemorizeAndReturnResult(block, start, tryBlockResults, false);
 				UpdateFilledOnBlock(block, start, canBeFilled);
 				UpdateEmptyAfterBlock(block, start, canBeEmpty);
-				return true;
+				return MemorizeAndReturnResult(block, start, tryBlockResults, true);
 			}
 
 			var result = false;
@@ -72,7 +78,7 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 			{
 				if (MinEmptySpaceBeforeNextBlockExists(cells, nextStart) &&
 					NoFilledCellsBetweenCurrentAndNextBlocks(endPositionOfCurrentBlock, nextStart, cells) &&
-					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled)
+					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled, tryBlockResults)
 					)
 				{
 					result = true;
@@ -81,6 +87,12 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 				}
 			}
 
+			return MemorizeAndReturnResult(block, start, tryBlockResults, result);
+		}
+
+		private bool MemorizeAndReturnResult(Block block, int start, TryBlockResult[,] tryBlockResults, bool result)
+		{
+			tryBlockResults[block.Index, start] = result ? TryBlockResult.True : TryBlockResult.False;
 			return result;
 		}
 
