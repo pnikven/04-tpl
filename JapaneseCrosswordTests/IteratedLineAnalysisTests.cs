@@ -65,14 +65,5 @@ namespace JapaneseCrosswordTests
 		{
 			Check(inputPath, solvedPath);
 		}
-
-		[Test]
-		[Ignore]
-		public void SolveCrossword_SuperBig()
-		{
-			var crossword = CrosswordDescription.Create(
-				File.ReadAllText(@"TestFiles\SuperBig.txt"));
-			var result = iteratedLineAnalysis.SolveCrossword(crossword);
-		}
 	}
 }

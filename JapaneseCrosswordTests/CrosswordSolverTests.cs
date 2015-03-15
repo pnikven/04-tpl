@@ -128,7 +128,7 @@ namespace JapaneseCrosswordTests
 		public void SpeedTest()
 		{
 			var testsDir = "TestFiles";
-			var testFiles = new[] { "SampleInput.txt", "Car.txt", "Flower.txt", "Winter.txt" };
+			var testFiles = new[] { "SampleInput.txt", "Car.txt", "Flower.txt", "Winter.txt", "SuperBig.txt" };
 			var solverTypes = new[] { CrosswordSolverType.SingleThreaded, CrosswordSolverType.MultiThreaded };
 			var stringFormat = "{0,15}{1,15}{2,15}{3,15}";
 			Console.WriteLine(stringFormat, "TestFile", "SingleThreaded", "MultiThreaded", "SpeedUp");
