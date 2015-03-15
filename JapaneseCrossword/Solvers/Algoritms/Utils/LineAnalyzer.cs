@@ -1,7 +1,5 @@
-using System.Linq;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
-using MoreLinq;
 
 namespace JapaneseCrossword.Solvers.Algoritms.Utils
 {
@@ -14,80 +12,91 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 			var canBeFilled = new bool[cells.Length];
 			var canBeEmpty = new bool[cells.Length];
 
-			var block = line.Blocks.First();
-			Enumerable.Range(0, GetMaxStartPositionOfBlock(block, line, cells.Length) + 1)
-				.Where(startPosition => TryBlock(block, startPosition, line, cells, canBeEmpty, canBeFilled))
-				.ForEach(startPosition => UpdateEmptyBeforeBlock(startPosition, canBeEmpty));
+			var block = line.Blocks[0];
+			for (var startPosition = 0;
+				startPosition <= GetMaxStartPositionOfBlock(block, line, cells.Length);
+				startPosition++)
+			{
+				if (TryBlock(block, startPosition, line, cells, canBeEmpty, canBeFilled))
+					UpdateEmptyBeforeBlock(startPosition, canBeEmpty);
+			}
 			return new LineAnalysisResult(canBeFilled, canBeEmpty);
 		}
 
-		private int GetMaxStartPositionOfBlock(Block block, Line line, int cellsCount)
+		private int GetMaxStartPositionOfBlock(Block currentBlock, Line line, int cellsCount)
 		{
-			return cellsCount - line.Blocks.Skip(block.Index).Sum(b => b.Length + MinSpaceBetweenBlocks) + 1;
+			var blockLengthsPlusMinSpacesFromCurrentBlock = 0;
+			for (var i = currentBlock.Index; i < line.BlockCount; i++)
+			{
+				blockLengthsPlusMinSpacesFromCurrentBlock +=
+					(line.Blocks[i].Length + MinSpaceBetweenBlocks);
+			}
+			blockLengthsPlusMinSpacesFromCurrentBlock -= MinSpaceBetweenBlocks;
+			return cellsCount - blockLengthsPlusMinSpacesFromCurrentBlock;
 		}
 
 		private void UpdateEmptyBeforeBlock(int blockStartPosition, bool[] canBeEmpty)
 		{
-			Enumerable.Range(0, blockStartPosition).ForEach(i => canBeEmpty[i] = true);
+			for (var i = 0; i < blockStartPosition; i++)
+				canBeEmpty[i] = true;
 		}
 
 		private bool TryBlock(Block block, int start, Line line, Cell[] cells, bool[] canBeEmpty, bool[] canBeFilled)
 		{
-			if (cells
-				.Skip(start)
-				.Take(block.Length)
-				.Any(cell => cell.IsEmpty))
-				return false;
+			for (var i = start; i < start + block.Length; i++)
+				if (cells[i].IsEmpty)
+					return false;
 
-			if (IsFirstBlockInLine(block) &&
-				cells
-					.Take(start)
-					.Any(cell => cell.IsFilled))
-				return false;
+			if (IsFirstBlockInLine(block))
+				for (var i = 0; i < start; i++)
+					if (cells[i].IsFilled)
+						return false;
 
 			if (IsLastBlockInLine(block, line))
 			{
-				if (cells
-					.Skip(start + block.Length)
-					.Any(cell => cell.IsFilled))
-					return false;
+				for (var i = start + block.Length; i < cells.Length; i++)
+					if (cells[i].IsFilled)
+						return false;
 				UpdateFilledOnBlock(block, start, canBeFilled);
 				UpdateEmptyAfterBlock(block, start, canBeEmpty);
 				return true;
 			}
 
 			var result = false;
-			var nextBlock = line.Blocks.ElementAt(block.Index + 1);
+			var nextBlock = line.Blocks[block.Index + 1];
 			var endPositionOfCurrentBlock = start + block.Length - 1;
 			var startPositionOfNextBlock = start + block.Length + MinSpaceBetweenBlocks;
-			Enumerable.Range(startPositionOfNextBlock,
-				GetMaxStartPositionOfBlock(nextBlock, line, cells.Length) - startPositionOfNextBlock + 1)
-				.Where(nextStart =>
-					MinEmptySpaceBeforeNextBlockExists(cells, nextStart) &&
+			for (var nextStart = startPositionOfNextBlock;
+				nextStart <= GetMaxStartPositionOfBlock(nextBlock, line, cells.Length);
+				nextStart++)
+			{
+				if (MinEmptySpaceBeforeNextBlockExists(cells, nextStart) &&
 					NoFilledCellsBetweenCurrentAndNextBlocks(endPositionOfCurrentBlock, nextStart, cells) &&
-					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled))
-				.ForEach(nextStart =>
+					TryBlock(nextBlock, nextStart, line, cells, canBeEmpty, canBeFilled)
+					)
 				{
 					result = true;
 					UpdateFilledOnBlock(block, start, canBeFilled);
 					UpdateEmptyAfterBlockBeforeNextBlock(block, start, nextStart, canBeEmpty);
-				});
+				}
+			}
 
 			return result;
 		}
 
 		private bool NoFilledCellsBetweenCurrentAndNextBlocks(int endPositionOfCurrentBlock, int nextStart, Cell[] cells)
 		{
-			return cells
-				.Skip(endPositionOfCurrentBlock + 1)
-				.Take(nextStart - endPositionOfCurrentBlock - 1)
-				.All(state => state.IsNotFilled);
+			for (var i = endPositionOfCurrentBlock + 1; i < nextStart; i++)
+				if (cells[i].IsFilled)
+					return false;
+			return true;
 		}
 
 		private static bool MinEmptySpaceBeforeNextBlockExists(Cell[] cells, int nextStart)
 		{
-			return Enumerable.Range(nextStart - MinSpaceBetweenBlocks, MinSpaceBetweenBlocks)
-				.All(pos => cells[pos].IsNotFilled);
+			for (var i = nextStart - MinSpaceBetweenBlocks; i < nextStart; i++)
+				if (cells[i].IsFilled) return false;
+			return true;
 		}
 
 		private void UpdateEmptyAfterBlockBeforeNextBlock(Block block, int start, int startNext, bool[] canBeEmpty)
@@ -97,7 +106,8 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 
 		private void UpdateFilledOnBlock(Block block, int startPosition, bool[] canBeFilled)
 		{
-			Enumerable.Range(startPosition, block.Length).ForEach(i => canBeFilled[i] = true);
+			for (var i = startPosition; i < startPosition + block.Length; i++)
+				canBeFilled[i] = true;
 		}
 
 		private void UpdateEmptyAfterBlock(Block block, int startPosition, bool[] canBeEmpty)

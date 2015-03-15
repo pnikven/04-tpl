@@ -2,13 +2,11 @@ using System;
 using System.IO;
 using System.Linq;
 using JapaneseCrossword;
-using JapaneseCrossword.Enums;
 using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils;
 using JapaneseCrossword.Solvers.Algoritms.Utils.Interfaces;
 using JapaneseCrossword.Solvers.Utils;
-using JapaneseCrossword.Solvers.Utils.Enums;
 using MoreLinq;
 using NUnit.Framework;
 
@@ -56,21 +54,6 @@ namespace JapaneseCrosswordTests
 			return result;
 		}
 
-		private CellState ConvertToCellState(char c)
-		{
-			switch (c)
-			{
-				case '.':
-					return CellState.Empty;
-				case '*':
-					return CellState.Filled;
-				case '?':
-					return CellState.Unknown;
-				default:
-					throw new ArgumentOutOfRangeException(string.Format("Unknown char {0}", c));
-			}
-		}
-
 		[TestCase(@"TestFiles\SampleInput.txt", @"TestFiles\SampleInput.solved.txt")]
 		[TestCase(@"TestFiles\Car.txt", @"TestFiles\Car.solved.txt")]
 		[TestCase(@"TestFiles\Flower.txt", @"TestFiles\Flower.solved.txt")]
@@ -78,9 +61,18 @@ namespace JapaneseCrosswordTests
 		[Ignore(
 			"These tests check subset of operations being tested by CrosswordSolverTests, but can be useful for individual testing of IteratedLineAnalysis.SolveCrossword"
 			)]
-		public void SolveCrossword_SimpleInput(string inputPath, string solvedPath)
+		public void SolveCrossword_onDifferentCrosswords(string inputPath, string solvedPath)
 		{
 			Check(inputPath, solvedPath);
+		}
+
+		[Test]
+		[Ignore]
+		public void SolveCrossword_SuperBig()
+		{
+			var crossword = CrosswordDescription.Create(
+				File.ReadAllText(@"TestFiles\SuperBig.txt"));
+			var result = iteratedLineAnalysis.SolveCrossword(crossword);
 		}
 	}
 }

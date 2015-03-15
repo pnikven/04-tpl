@@ -9,10 +9,10 @@ namespace JapaneseCrossword.Solvers.Utils
 		public LineType Type { get; private set; }
 		public int Index { get; private set; }
 		public bool NeedRefresh { get; private set; }
-		public IEnumerable<Block> Blocks { get; private set; }
+		public Block[] Blocks { get; private set; }
 		public int BlockCount { get { return Blocks.Count(); } }
 
-		public Line(LineType type, int index, IEnumerable<Block> blocks)
+		public Line(LineType type, int index, Block[] blocks)
 		{
 			Type = type;
 			Index = index;
@@ -24,7 +24,9 @@ namespace JapaneseCrossword.Solvers.Utils
 		{
 			return blocks == null ?
 				null :
-				new Line(type, index, blocks.Select((blockLength, i) => new Block(blockLength, i)));
+				new Line(type, index, blocks
+					.Select((blockLength, i) => new Block(blockLength, i))
+					.ToArray());
 		}
 
 		public void Refresh()
