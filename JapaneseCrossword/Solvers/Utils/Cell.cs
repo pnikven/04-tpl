@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JapaneseCrossword.Solvers.Utils.Enums;
 
@@ -6,69 +7,42 @@ namespace JapaneseCrossword.Solvers.Utils
 {
 	public class Cell
 	{
-		// По смыслу это должны быть взаимоисключающие состояния: почему бы не сделать 1 свойство с состоянием типа CellState?
-		// Кажется, это сильно сократит объем кода в этом классе и упростит понимание.
-		public bool IsUnknown { get; private set; }
-		public bool IsEmpty { get; private set; }
-		public bool IsFilled { get; private set; }
+		public bool IsUnknown { get { return CellState == CellState.Unknown; } }
+		public bool IsKnown { get { return !IsUnknown; } }
+		public bool IsFilled { get { return CellState == CellState.Filled; } }
+		public bool IsNotFilled { get { return !IsFilled; } }
+		public bool IsEmpty { get { return CellState == CellState.Empty; } }
 
 		public Cell()
 		{
-			IsUnknown = true;
+			CellState = CellState.Unknown;
 		}
 
-		public static Cell Create(CellState cellState)
+		public Cell(CellState cellState)
 		{
-			switch (cellState)
-			{
-				case CellState.Unknown:
-					return new Cell(true, false, false);
-				case CellState.Empty:
-					return new Cell(false, true, false);
-				case CellState.Filled:
-					return new Cell(false, false, true);
-				default:
-					return null;
-			}
+			CellState = cellState;
 		}
 
-		public static Cell Create(char cellState)
+		public static Cell Create(char symbol)
 		{
-			switch (cellState)
-			{
-				case '?':
-					return new Cell(true, false, false);
-				case '.':
-					return new Cell(false, true, false);
-				case '*':
-					return new Cell(false, false, true);
-				default:
-					return null;
-			}
+			if (!CellStateToCharMap.ContainsValue(symbol))
+				throw new Exception(
+					string.Format("Symbol {0} not recognized", symbol));
+			var cellState = CellStateToCharMap.First(pair => pair.Value.Equals(symbol)).Key;
+			return new Cell(cellState);
 		}
 
-		public static Cell[] Create(string cellStates)
+		public static Cell[] CreateCellsFromString(string cellStates)
 		{
 			return cellStates.Select(Create).ToArray();
 		}
 
-
-		public bool IsKnown
-		{
-			get { return !IsUnknown; }
-		}
-
-		public bool IsNotFilled
-		{
-			get { return !IsFilled; }
-		}
-
 		public char ToChar()
 		{
-			if (IsUnknown) return '?';
-			if (IsEmpty) return '.';
-			if (IsFilled) return '*';
-			throw new Exception("cellState not set");
+			if (CellStateToCharMap.ContainsKey(CellState))
+				return CellStateToCharMap[CellState];
+			throw new Exception(
+				string.Format("There is now corresponding symbol for cell state {0}", CellState));
 		}
 
 		public override bool Equals(object obj)
@@ -82,27 +56,22 @@ namespace JapaneseCrossword.Solvers.Utils
 		protected bool Equals(Cell other)
 		{
 			return
-				IsEmpty == other.IsEmpty &&
-				IsFilled == other.IsFilled &&
-				IsUnknown == other.IsUnknown;
+				CellState == other.CellState;
 		}
 
 		public override int GetHashCode()
 		{
-			unchecked
-			{
-				var hashCode = IsUnknown.GetHashCode();
-				hashCode = (hashCode * 397) ^ IsEmpty.GetHashCode();
-				hashCode = (hashCode * 397) ^ IsFilled.GetHashCode();
-				return hashCode;
-			}
+			return (int)CellState;
 		}
 
-		private Cell(bool isUnknown, bool isEmpty, bool isFilled)
-		{
-			IsUnknown = isUnknown;
-			IsEmpty = isEmpty;
-			IsFilled = isFilled;
-		}
+		private CellState CellState { get; set; }
+
+		private readonly static Dictionary<CellState, char> CellStateToCharMap =
+			new Dictionary<CellState, char>()
+			{
+				{ CellState.Unknown, '?' },
+				{ CellState.Filled, '*' },
+				{ CellState.Empty, '.' }
+			};
 	}
 }

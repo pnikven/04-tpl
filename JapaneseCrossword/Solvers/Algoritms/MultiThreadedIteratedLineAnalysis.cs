@@ -16,11 +16,11 @@ namespace JapaneseCrossword.Solvers.Algoritms
 
 		protected override Cell[,] SolveCrosswordUnsafe(ICrosswordDescription crosswordDescription)
 		{
-			var picture = CreatePicture(crosswordDescription);
-			var lines = GetLines(crosswordDescription).ToArray();
+			var picture = CreatePicture(crosswordDescription.RowCount, crosswordDescription.ColumnCount);
+			var lines = CreateLinesFromCrosswordDescription(crosswordDescription).ToArray();
 			while (true)
 			{
-				var invalidLines = GetInvalidLines(lines);
+				var invalidLines = GetLinesToBeRefreshed(lines);
 				if (!invalidLines.Any())
 					break;
 				AnalyzeInvalidLinesOfTheSameType(LineType.Row, invalidLines, lines, picture);

@@ -32,14 +32,14 @@ namespace JapaneseCrossword.Solvers.Algoritms
 
 		protected virtual Cell[,] SolveCrosswordUnsafe(ICrosswordDescription crosswordDescription)
 		{
-			var picture = CreatePicture(crosswordDescription);
+			var picture = CreatePicture(crosswordDescription.RowCount, crosswordDescription.ColumnCount);
 			Enumerable.Range(0, crosswordDescription.RowCount)
 				.Cartesian(Enumerable.Range(0, crosswordDescription.ColumnCount), (i, j) =>
 					picture[i, j] = new Cell());
-			var lines = GetLines(crosswordDescription).ToArray();
+			var lines = CreateLinesFromCrosswordDescription(crosswordDescription).ToArray();
 			while (true)
 			{
-				var invalidLines = GetInvalidLines(lines);
+				var invalidLines = GetLinesToBeRefreshed(lines);
 				if (!invalidLines.Any())
 					break;
 				invalidLines.ForEach(line => AnalyzeLine(lines, line, picture));
@@ -48,47 +48,42 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return picture;
 		}
 
-		// Здесь не нужно описание всего кроссворда, только размерность, давай не будем ему лишнее сообщать. И метод можно сделать статическим
-		protected Cell[,] CreatePicture(ICrosswordDescription crosswordDescription)
+		protected static Cell[,] CreatePicture(int rowCount, int columnCount)
 		{
-			var picture = new Cell[crosswordDescription.RowCount, crosswordDescription.ColumnCount];
-			for (var i = 0; i < crosswordDescription.RowCount; i++)
-				for (var j = 0; j < crosswordDescription.ColumnCount; j++)
+			var picture = new Cell[rowCount, columnCount];
+			for (var i = 0; i < rowCount; i++)
+				for (var j = 0; j < columnCount; j++)
 					picture[i, j] = new Cell();
 			return picture;
 		}
 
-		// Название метода не соответствует его функции. 
-		protected Line[] GetInvalidLines(Line[] lines)
+		protected Line[] GetLinesToBeRefreshed(Line[] lines)
 		{
 			return lines
 				.Where(line => line.NeedRefresh)
 				.ToArray();
 		}
 
-		// Название параметров нужно немного конкретизировать в соответствии с их смыслом
-		protected void AnalyzeLine(Line[] lines, Line line, Cell[,] picture)
+		protected void AnalyzeLine(Line[] allLines, Line analyzedLine, Cell[,] currentPicture)
 		{
-			line.Refresh();
-			var cells = CreateCells(line, picture);
-			// Почему где-то var, а где-то - явное указание типа? Кажется, тут не нужно явно указывать тип, можно сэкономить буквы:)
-			ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(line, cells);
+			analyzedLine.Refresh();
+			var cells = CreateCells(analyzedLine, currentPicture);
+			ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(analyzedLine, cells);
 			Enumerable.Range(0, cells.Length)
-				.Where(cellIndex => UpdateCell(cells, cellIndex, analysisResult))
+				.Where(cellIndex => TryUpdateCells(cells, cellIndex, analysisResult.Cells))
 				.ForEach(cellIndex =>
 				{
-					InvalidateCrossLine(lines, line.Type, cellIndex);
-					UpdatePicture(line, picture, cellIndex, cells);
+					InvalidateCrossLine(allLines, analyzedLine.Type, cellIndex);
+					UpdatePicture(currentPicture, analyzedLine, cellIndex, cells);
 				});
 		}
 
-		// todo: static
-		private void UpdatePicture(Line line, Cell[,] picture, int cellIndex, Cell[] cells)
+		private static void UpdatePicture(Cell[,] pictureToUpdate, Line line, int cellIndex, Cell[] sourceCells)
 		{
 			if (line.Type == LineType.Row)
-				picture[line.Index, cellIndex] = cells[cellIndex];
+				pictureToUpdate[line.Index, cellIndex] = sourceCells[cellIndex];
 			else
-				picture[cellIndex, line.Index] = cells[cellIndex];
+				pictureToUpdate[cellIndex, line.Index] = sourceCells[cellIndex];
 		}
 
 		private void InvalidateCrossLine(Line[] lines, LineType lineType, int cellIndex)
@@ -103,12 +98,11 @@ namespace JapaneseCrossword.Solvers.Algoritms
 			return lineType == LineType.Row ? LineType.Column : LineType.Row;
 		}
 
-		// Название метода не соответствует его функции.
-		private bool UpdateCell(Cell[] cells, int cellIndex, ILineAnalysisResult analysisResult)
+		private bool TryUpdateCells(Cell[] cellsToUpdate, int cellIndex, Cell[] sourceCells)
 		{
-			if (cells[cellIndex].Equals(analysisResult.Cells[cellIndex]))
+			if (cellsToUpdate[cellIndex].Equals(sourceCells[cellIndex]))
 				return false;
-			cells[cellIndex] = analysisResult.Cells[cellIndex];
+			cellsToUpdate[cellIndex] = sourceCells[cellIndex];
 			return true;
 		}
 
@@ -121,19 +115,17 @@ namespace JapaneseCrossword.Solvers.Algoritms
 				.ToArray();
 		}
 
-		private IEnumerable<Line> GetLines(LineType lineType, IEnumerable<int[]> blocks)
+		private IEnumerable<Line> CreateLinesFromBlocks(LineType lineType, IEnumerable<int[]> blocks)
 		{
 			return blocks.Select((lineBlocks, i) => Line.Create(lineType, i, lineBlocks));
 		}
 
-		// Название метода не соответствует его функции.
-		// Хотя бы GetAllLines
-		protected IEnumerable<Line> GetLines(ICrosswordDescription crosswordDescription)
+		protected IEnumerable<Line> CreateLinesFromCrosswordDescription(ICrosswordDescription crosswordDescription)
 		{
 			return
-				GetLines(LineType.Row, crosswordDescription.RowBlocks)
+				CreateLinesFromBlocks(LineType.Row, crosswordDescription.RowBlocks)
 				.Concat(
-				GetLines(LineType.Column, crosswordDescription.ColumnBlocks));
+				CreateLinesFromBlocks(LineType.Column, crosswordDescription.ColumnBlocks));
 		}
 	}
 }

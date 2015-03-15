@@ -24,7 +24,7 @@ namespace JapaneseCrosswordTests
 		public void Analyze_OneBlock()
 		{
 			var line = Line.Create(LineType.Row, 1, new[] { 2 });
-			var cells = Cell.Create("???");
+			var cells = Cell.CreateCellsFromString("???");
 			var canBeFilled = new[] { true, true, true };
 			var canBeEmpty = new[] { true, false, true };
 			var expected = new LineAnalysisResult(canBeFilled, canBeEmpty);
@@ -80,7 +80,7 @@ namespace JapaneseCrosswordTests
 		public void Analyze_OneBlockWithFirstFilledCell()
 		{
 			var line = Line.Create(LineType.Row, 1, new[] { 2 });
-			var cells = Cell.Create("*??");
+			var cells = Cell.CreateCellsFromString("*??");
 			var canBeFilled = new[] { true, true, false };
 			var canBeEmpty = new[] { false, false, true };
 			var expected = new LineAnalysisResult(canBeFilled, canBeEmpty);
@@ -94,7 +94,7 @@ namespace JapaneseCrosswordTests
 		public void Analyze_OneBlockWithLastFilledCell()
 		{
 			var line = Line.Create(LineType.Row, 1, new[] { 2 });
-			var cells = Cell.Create("???*");
+			var cells = Cell.CreateCellsFromString("???*");
 			var canBeFilled = new[] { false, false, true, true };
 			var canBeEmpty = new[] { true, true, false, false };
 			var expected = new LineAnalysisResult(canBeFilled, canBeEmpty);
@@ -108,7 +108,7 @@ namespace JapaneseCrosswordTests
 		public void Analyze_OneBlockWithFirstEmptyCell()
 		{
 			var line = Line.Create(LineType.Row, 1, new[] { 2 });
-			var cells = Cell.Create(".??");
+			var cells = Cell.CreateCellsFromString(".??");
 			var canBeFilled = new[] { false, true, true };
 			var canBeEmpty = new[] { true, false, false };
 			var expected = new LineAnalysisResult(canBeFilled, canBeEmpty);
@@ -122,7 +122,7 @@ namespace JapaneseCrosswordTests
 		public void Analyze_OneBlockWithFirstEmptyCellInLongerLine()
 		{
 			var line = Line.Create(LineType.Row, 1, new[] { 2 });
-			var cells = Cell.Create(".???");
+			var cells = Cell.CreateCellsFromString(".???");
 			var canBeFilled = new[] { false, true, true, true };
 			var canBeEmpty = new[] { true, true, false, true };
 			var expected = new LineAnalysisResult(canBeFilled, canBeEmpty);

@@ -20,7 +20,7 @@ namespace JapaneseCrossword.Solvers.Algoritms.Utils
 					.Select(i => canBeFilled[i] ^ canBeEmpty[i] ?
 						(canBeFilled[i] ? CellState.Filled : CellState.Empty) :
 						CellState.Unknown)
-					.Select(Cell.Create)
+					.Select(cellState => new Cell(cellState))
 					.ToArray();
 			}
 		}

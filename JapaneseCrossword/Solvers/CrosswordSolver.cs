@@ -20,12 +20,8 @@ namespace JapaneseCrossword.Solvers
 
 		public SolutionStatus Solve(string inputFilePath, string outputFilePath)
 		{
-			// Если сделать как в комментарии ниже, будет 
-			//string crossword;
-			//if (TryReadFile(inputFilePath, out crossword))
-			//	return SolutionStatus.BadInputFilePath;
-			var crossword = TryReadFile(inputFilePath);
-			if (crossword == null)
+			string crossword;
+			if (!(TryReadFile(inputFilePath, out crossword)))
 				return SolutionStatus.BadInputFilePath;
 
 			var crosswordDescription = CrosswordDescription.Create(crossword);
@@ -43,8 +39,7 @@ namespace JapaneseCrossword.Solvers
 			return outputResult.Contains('?') ? SolutionStatus.PartiallySolved : SolutionStatus.Solved;
 		}
 
-		//todo: private
-		public static string ConvertPictureToString(Cell[,] picture)
+		private static string ConvertPictureToString(Cell[,] picture)
 		{
 			return string.Format("{0}\r\n",
 				Enumerable.Range(0, picture.GetLength(0))
@@ -54,18 +49,17 @@ namespace JapaneseCrossword.Solvers
 				.ToDelimitedString("\r\n"));
 		}
 
-		// Общепринятая сигнатура для методов типа Try(...) такая:
-		// bool Try(...)(manyParams, out TResult something)
-		// Соответственно, если не получилось, возвращаем false и null в качестве результата
-		private string TryReadFile(string filePath)
+		private bool TryReadFile(string filePath, out string contents)
 		{
 			try
 			{
-				return File.ReadAllText(filePath, Encoding.UTF8);
+				contents = File.ReadAllText(filePath, Encoding.UTF8);
+				return true;
 			}
 			catch
 			{
-				return null;
+				contents = null;
+				return false;
 			}
 		}
 
