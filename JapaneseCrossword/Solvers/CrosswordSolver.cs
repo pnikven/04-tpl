@@ -57,7 +57,7 @@ namespace JapaneseCrossword.Solvers
 				contents = File.ReadAllText(filePath, Encoding.UTF8);
 				return true;
 			}
-			catch (Exception e)
+			catch
 			{
 				contents = null;
 				return false;
