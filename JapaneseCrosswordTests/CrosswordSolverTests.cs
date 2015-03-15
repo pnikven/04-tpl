@@ -113,6 +113,14 @@ namespace JapaneseCrosswordTests
 				SolutionStatus.PartiallySolved);
 		}
 
+		[TestCase(CrosswordSolverType.SingleThreaded)]
+		[TestCase(CrosswordSolverType.MultiThreaded)]
+		public void Japanese(CrosswordSolverType solverType)
+		{
+			Check(solverType, @"TestFiles\Japanese.txt", @"TestFiles\Japanese.solved.txt",
+				SolutionStatus.Solved);
+		}
+
 		private void Check(CrosswordSolverType solverType, string inputPath, string correctOutputPath,
 			SolutionStatus expectedSolutionStatus)
 		{
@@ -128,12 +136,12 @@ namespace JapaneseCrosswordTests
 		public void SpeedTest()
 		{
 			var testsDir = "TestFiles";
-			var testFiles = new[] { "SampleInput.txt", "Car.txt", "Flower.txt", "Winter.txt", "SuperBig.txt" };
+			var testFiles = new[] { "SampleInput.txt", "Car.txt", "Flower.txt", "Winter.txt", "SuperBig.txt", "Japanese.txt" };
 			var solverTypes = new[] { CrosswordSolverType.SingleThreaded, CrosswordSolverType.MultiThreaded };
 			var stringFormat = "{0,15}{1,15}{2,15}{3,15}";
 			Console.WriteLine(stringFormat, "TestFile", "SingleThreaded", "MultiThreaded", "SpeedUp");
 			testFiles
-				.Cartesian<string, CrosswordSolverType, Tuple<string, CrosswordSolverType>>(solverTypes, Tuple.Create)
+				.Cartesian(solverTypes, Tuple.Create)
 				.Batch(solverTypes.Length)
 				.ForEach(solvers =>
 				{
@@ -149,8 +157,9 @@ namespace JapaneseCrosswordTests
 							return stopwatch.ElapsedMilliseconds;
 						})
 						.ToArray();
+					stringFormat = "{0,15}{1,15}{2,15}{3,15:0.0}";
 					Console.WriteLine(stringFormat, s.First().Item1,
-						elapsedTimes[0], elapsedTimes[1], elapsedTimes[0] / elapsedTimes[1]);
+						elapsedTimes[0], elapsedTimes[1], (double)elapsedTimes[0] / elapsedTimes[1]);
 				});
 		}
 	}
