@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using JapaneseCrossword.Enums;
@@ -56,7 +57,7 @@ namespace JapaneseCrossword.Solvers
 				contents = File.ReadAllText(filePath, Encoding.UTF8);
 				return true;
 			}
-			catch
+			catch (Exception e)
 			{
 				contents = null;
 				return false;
