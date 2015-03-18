@@ -68,7 +68,7 @@ namespace JapaneseCrossword.Solvers.Algoritms
 		{
 			analyzedLine.Refresh();
 			var cells = CreateCells(analyzedLine, currentPicture);
-			ILineAnalysisResult analysisResult = lineAnalyzer.Analyze(analyzedLine, cells);
+			var analysisResult = lineAnalyzer.Analyze(analyzedLine, cells);
 			Enumerable.Range(0, cells.Length)
 				.Where(cellIndex => TryUpdateCells(cells, cellIndex, analysisResult.Cells))
 				.ForEach(cellIndex =>
