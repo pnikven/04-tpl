@@ -1,14 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using JapaneseCrossword.Enums;
 using JapaneseCrossword.Solvers;
 using JapaneseCrossword.Solvers.Algoritms;
 using JapaneseCrossword.Solvers.Algoritms.Interfaces;
 using JapaneseCrossword.Solvers.Algoritms.Utils;
 using JapaneseCrossword.Solvers.Interfaces;
-using MoreLinq;
 using NUnit.Framework;
 
 namespace JapaneseCrosswordTests
@@ -129,38 +126,6 @@ namespace JapaneseCrosswordTests
 			var solutionStatus = solver.Solve(inputPath, outputFilePath);
 			Assert.AreEqual(expectedSolutionStatus, solutionStatus);
 			CollectionAssert.AreEqual(File.ReadAllText(correctOutputPath), File.ReadAllText(outputFilePath));
-		}
-
-		[Ignore("This test only demonstrates speed of each algorithm and not intended for testing program correctness")]
-		[Test]
-		public void SpeedTest()
-		{
-			var testsDir = "TestFiles";
-			var testFiles = new[] { "SampleInput.txt", "Car.txt", "Flower.txt", "Winter.txt", "SuperBig.txt", "Japanese.txt" };
-			var solverTypes = new[] { CrosswordSolverType.SingleThreaded, CrosswordSolverType.MultiThreaded };
-			var stringFormat = "{0,15}{1,15}{2,15}{3,15}";
-			Console.WriteLine(stringFormat, "TestFile", "SingleThreaded", "MultiThreaded", "SpeedUp");
-			testFiles
-				.Cartesian(solverTypes, Tuple.Create)
-				.Batch(solverTypes.Length)
-				.ForEach(solvers =>
-				{
-					var s = solvers.ToArray();
-					var elapsedTimes = s
-						.Select(pair =>
-						{
-							var stopwatch = new Stopwatch();
-							stopwatch.Start();
-							GetSolver(pair.Item2)
-								.Solve(Path.Combine(testsDir, pair.Item1), Path.GetRandomFileName());
-							stopwatch.Stop();
-							return stopwatch.ElapsedMilliseconds;
-						})
-						.ToArray();
-					stringFormat = "{0,15}{1,15}{2,15}{3,15:0.0}";
-					Console.WriteLine(stringFormat, s.First().Item1,
-						elapsedTimes[0], elapsedTimes[1], (double)elapsedTimes[0] / elapsedTimes[1]);
-				});
 		}
 	}
 }
