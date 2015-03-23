@@ -61,6 +61,6 @@ namespace Listeners
 
 		private Func<HttpListenerContext, Task> CallbackAsync { get; set; }
 
-		private ILog log { get; set; }
+		private readonly ILog log;
 	}
 }
