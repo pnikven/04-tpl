@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patterns", "Patterns\Patter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Balancer", "Balancer\Balancer.csproj", "{FB7CFEF2-8CE8-4ED5-A60C-90162B267323}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Listeners", "Listeners\Listeners.csproj", "{AD103DCD-6549-411D-AB66-70D4AA88C026}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{FB7CFEF2-8CE8-4ED5-A60C-90162B267323}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB7CFEF2-8CE8-4ED5-A60C-90162B267323}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB7CFEF2-8CE8-4ED5-A60C-90162B267323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD103DCD-6549-411D-AB66-70D4AA88C026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD103DCD-6549-411D-AB66-70D4AA88C026}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD103DCD-6549-411D-AB66-70D4AA88C026}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD103DCD-6549-411D-AB66-70D4AA88C026}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
