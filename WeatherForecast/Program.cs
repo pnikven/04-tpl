@@ -12,8 +12,8 @@ namespace WeatherForecast
 	{
 		static void Main(string[] args)
 		{
-			var e1Task = StartE1Task("http://www.e1.ru.ut");
-			var gismeteoTask = StartGismeteoTask("http://www.gismeteo.ru.jhff");
+			var e1Task = StartE1Task("http://www.e1.ru");
+			var gismeteoTask = StartGismeteoTask("http://www.gismeteo.ru");
             var weatherForecasters = new HashSet<Task<double>> { e1Task, gismeteoTask};
 
 		    while (weatherForecasters.Count > 0)
