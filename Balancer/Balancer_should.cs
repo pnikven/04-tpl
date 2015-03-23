@@ -18,7 +18,9 @@ namespace Balancer
 			balancer.Start();
 			var uri = string.Format("http://{0}/method?query=1", balancerAddress);
 			var request = WebRequest.CreateHttp(uri);
+
 			request.GetResponse();
+
 			A.CallTo(() => log.InfoFormat("{0}: received {1} from {2}",
 				A<Guid>.Ignored, "1", A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
