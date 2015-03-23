@@ -3,3 +3,4 @@
 packages/*
 *.user
 *.suo
+Patterns/Files/ips.txt
