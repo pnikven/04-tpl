@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Balancer.cs" />
-    <Compile Include="BalancerTests.cs" />
+    <Compile Include="Balancer_should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

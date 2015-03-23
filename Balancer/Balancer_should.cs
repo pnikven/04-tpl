@@ -7,10 +7,10 @@ using NUnit.Framework;
 namespace Balancer
 {
 	[TestFixture]
-	class BalancerTests
+	class Balancer_should
 	{
 		[Test]
-		public void balancer_should_listen_http_requests()
+		public void listen_http_requests()
 		{
 			var log = A.Fake<ILog>();
 			var balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
@@ -20,7 +20,7 @@ namespace Balancer
 			var request = WebRequest.CreateHttp(uri);
 			request.GetResponse();
 			A.CallTo(() => log.InfoFormat("{0}: received {1} from {2}",
-				A.Dummy<Guid>(), "1", A.Dummy<IPEndPoint>())).MustHaveHappened();
+				A<Guid>.Ignored, "1", A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 
 	}
