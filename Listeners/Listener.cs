@@ -4,11 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 
-namespace HashServer
+namespace Listeners
 {
 	public class Listener
 	{
-		private HttpListener listener;
+		private readonly HttpListener listener;
 
 		public Listener(int port, string suffix, Func<HttpListenerContext, Task> callbackAsync)
 		{
@@ -60,6 +60,6 @@ namespace HashServer
 
 		private Func<HttpListenerContext, Task> CallbackAsync { get; set; }
 
-		private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+		private static readonly ILog log = LogManager.GetLogger(typeof(Listener));
 	}
 }

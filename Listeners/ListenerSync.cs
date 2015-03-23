@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 
-namespace HashServer
+namespace Listeners
 {
 	public class ListenerSync
 	{
