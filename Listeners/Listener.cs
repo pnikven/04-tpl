@@ -10,12 +10,13 @@ namespace Listeners
 	{
 		private readonly HttpListener listener;
 
-		public Listener(int port, string suffix, Func<HttpListenerContext, Task> callbackAsync)
+		public Listener(int port, string suffix, Func<HttpListenerContext, Task> callbackAsync, ILog log)
 		{
 			ThreadPool.SetMinThreads(8, 8);
 			CallbackAsync = callbackAsync;
 			listener = new HttpListener();
 			listener.Prefixes.Add(string.Format("http://+:{0}{1}/", port, suffix != null ? "/" + suffix.TrimStart('/') : ""));
+			this.log = log;
 		}
 
 		public void Start()
@@ -24,9 +25,9 @@ namespace Listeners
 			StartListen();
 		}
 
-		public async void StartListen()
+		private async void StartListen()
 		{
-			while(true)
+			while (true)
 			{
 				try
 				{
@@ -40,7 +41,7 @@ namespace Listeners
 							{
 								await CallbackAsync(ctx);
 							}
-							catch(Exception e)
+							catch (Exception e)
 							{
 								log.Error(e);
 							}
@@ -51,7 +52,7 @@ namespace Listeners
 						}
 					);
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
 					log.Error(e);
 				}
@@ -60,6 +61,6 @@ namespace Listeners
 
 		private Func<HttpListenerContext, Task> CallbackAsync { get; set; }
 
-		private static readonly ILog log = LogManager.GetLogger(typeof(Listener));
+		private ILog log { get; set; }
 	}
 }

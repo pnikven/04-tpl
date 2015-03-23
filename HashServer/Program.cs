@@ -17,7 +17,7 @@ namespace HashServer
 			XmlConfigurator.Configure();
 			try
 			{
-				var listener = new Listener(port, "method", OnContextAsync);
+				var listener = new Listener(port, "method", OnContextAsync, log);
 				listener.Start();
 
 				var listenerSync = new ListenerSync(port, "methodSync", OnContext);
