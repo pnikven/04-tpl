@@ -23,5 +23,11 @@ namespace Balancer
 				A<Guid>.Ignored, "1", A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 
+		[Test]
+		public void proxy_client_request_to_random_replica()
+		{
+
+		}
+
 	}
 }
