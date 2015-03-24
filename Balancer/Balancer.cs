@@ -76,5 +76,7 @@ namespace Balancer
 		{
 			get { return "Balancer"; }
 		}
+
+		public IPEndPoint LastChosenReplicaAddress { get; private set; }
 	}
 }

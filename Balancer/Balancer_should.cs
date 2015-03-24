@@ -24,7 +24,7 @@ namespace Balancer
 		public void TestFixtureSetUp()
 		{
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
-			query = "query=333";
+			query = "qqq=lalala";
 			processedQuery = QueryProcessor.Process(query);
 			replicaAddresses = new[]
 			{
@@ -98,9 +98,26 @@ namespace Balancer
 		}
 
 		[Test]
-		[Ignore]
 		public void proxy_client_request_to_random_replica()
 		{
+			foreach (var replica in replicas)
+				balancer.TryAddReplicaAddress(replica.Address);
+			CreateHttpRequestAndGetResponse(
+				string.Format("http://{0}/method?{1}", balancerAddress, query));
+			var chosenReplica = replicas.FirstOrDefault(x => x.Address.Equals(balancer.LastChosenReplicaAddress));
+
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, query, chosenReplica.Address)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, chosenReplica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, chosenReplica.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, chosenReplica.Address)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
 
 		}
 
