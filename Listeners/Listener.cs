@@ -25,9 +25,14 @@ namespace Listeners
 			StartListen();
 		}
 
+		public void Stop()
+		{
+			listener.Stop();
+		}
+
 		private async void StartListen()
 		{
-			while (true)
+			while (listener.IsListening)
 			{
 				try
 				{

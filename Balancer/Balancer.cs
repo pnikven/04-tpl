@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using log4net;
@@ -7,12 +9,28 @@ namespace Balancer
 {
 	class Balancer : HttpListener
 	{
-		private readonly IPEndPoint[] serverAddresses;
+		private readonly List<IPEndPoint> replicas;
 
-		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] serverAddresses, ILog log)
+		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] replicaAddresses, ILog log)
 			: base(balancerAddress, log)
 		{
-			this.serverAddresses = serverAddresses;
+			replicas = replicaAddresses == null ? new List<IPEndPoint>() : replicaAddresses.ToList();
+		}
+
+		public bool TryAddReplica(IPEndPoint replicaAddress)
+		{
+			if (replicas.Contains(replicaAddress))
+				return false;
+			replicas.Add(replicaAddress);
+			return true;
+		}
+
+		public bool TryRemoveReplica(IPEndPoint replicaAddress)
+		{
+			if (!replicas.Contains(replicaAddress))
+				return false;
+			replicas.Remove(replicaAddress);
+			return true;
 		}
 
 		protected override async Task OnContextAsync(HttpListenerContext context)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using log4net;
 using Listeners;
@@ -24,6 +23,12 @@ namespace Balancer
 			listener = new Listener(address.Port, suffix, OnContextAsync, log);
 			listener.Start();
 			log.InfoFormat("{0} started!", Name);
+		}
+
+		public void Stop()
+		{
+			listener.Stop();
+			log.InfoFormat("{0} stopped!", Name);
 		}
 
 		protected abstract Task OnContextAsync(HttpListenerContext context);
