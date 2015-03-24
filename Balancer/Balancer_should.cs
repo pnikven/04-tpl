@@ -23,34 +23,34 @@ namespace Balancer
 		[TestFixtureSetUp]
 		public void TestFixtureSetUp()
 		{
-			log = A.Fake<ILog>();
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
 			query = "333";
 			processedQuery = QueryProcessor.Process(query);
-			balancer = new Balancer(balancerAddress, null, log);
-			balancer.Start();
 			replicaAddresses = new[]
 			{
 				new IPEndPoint(IPAddress.Loopback, 20000),
 				new IPEndPoint(IPAddress.Loopback, 20001),
 				new IPEndPoint(IPAddress.Loopback, 20002),
 			}.ToList();
-			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToArray();
-			foreach (var replica in replicas)
-				replica.Start();
-		}
-
-		[TestFixtureTearDown]
-		public void TestFixtureTearDown()
-		{
-			foreach (var replica in replicas)
-				replica.Stop();
 		}
 
 		[SetUp]
 		public void SetUp()
 		{
-			balancer.ClearReplicas();
+			log = A.Fake<ILog>();
+			balancer = new Balancer(balancerAddress, null, log);
+			balancer.Start();
+			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToArray();
+			foreach (var replica in replicas)
+				replica.Start();
+		}
+
+		[TearDown]
+		public void TestFixtureTearDown()
+		{
+			foreach (var replica in replicas)
+				replica.Stop();
+			balancer.Stop();
 		}
 
 		[Test]
