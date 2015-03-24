@@ -12,6 +12,8 @@ namespace Balancer
 		{
 		}
 
+		public IPEndPoint Address { get { return address; } }
+
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();

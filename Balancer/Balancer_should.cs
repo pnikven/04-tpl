@@ -56,7 +56,7 @@ namespace Balancer
 		[Test]
 		public void listen_http_requests()
 		{
-			balancer.TryAddReplica(replicaAddresses[0]);
+			balancer.TryAddReplicaAddress(replicaAddresses[0]);
 			CreateHttpRequestAndGetResponse(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
 
@@ -78,19 +78,19 @@ namespace Balancer
 		[Test]
 		public void proxy_client_request_to_replica_if_there_is_exactly_one_replica()
 		{
-			var replicaAddress = replicaAddresses[0];
-			balancer.TryAddReplica(replicaAddress);
+			var replica = replicas[0];
+			balancer.TryAddReplicaAddress(replica.Address);
 			CreateHttpRequestAndGetResponse(
 				string.Format("http://{0}/method?query={1}", balancerAddress, query));
 
-			A.CallTo(() => log.InfoFormat("{0}: sent {1} to replica {2}",
-				A<Guid>.Ignored, query, replicaAddress)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: replica {1} received {2} from {3}",
-				A<Guid>.Ignored, replicaAddress, query, balancerAddress)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: replica {1} sent {2} to {3}",
-				A<Guid>.Ignored, replicaAddress, query, balancerAddress)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: received {1} from replica {2}",
-				A<Guid>.Ignored, query, replicaAddress)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, query, replica.Name)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, replica.Name, query, balancer.Name)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, replica.Name, query, balancer.Name)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, query, replica.Name)).MustHaveHappened();
 		}
 
 		[Test]

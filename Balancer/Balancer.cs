@@ -17,7 +17,7 @@ namespace Balancer
 			replicas = replicaAddresses == null ? new List<IPEndPoint>() : replicaAddresses.ToList();
 		}
 
-		public bool TryAddReplica(IPEndPoint replicaAddress)
+		public bool TryAddReplicaAddress(IPEndPoint replicaAddress)
 		{
 			if (replicas.Contains(replicaAddress))
 				return false;
@@ -25,7 +25,7 @@ namespace Balancer
 			return true;
 		}
 
-		public bool TryRemoveReplica(IPEndPoint replicaAddress)
+		public bool TryRemoveReplicaAddress(IPEndPoint replicaAddress)
 		{
 			if (!replicas.Contains(replicaAddress))
 				return false;
@@ -33,7 +33,7 @@ namespace Balancer
 			return true;
 		}
 
-		public void ClearReplicas()
+		public void ClearReplicaAddresses()
 		{
 			replicas.Clear();
 		}
