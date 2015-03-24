@@ -81,16 +81,20 @@ namespace Balancer
 			var replica = replicas[0];
 			balancer.TryAddReplicaAddress(replica.Address);
 			CreateHttpRequestAndGetResponse(
-				string.Format("http://{0}/method?query={1}", balancerAddress, query));
+				string.Format("http://{0}/method?{1}", balancerAddress, query));
 
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, query, replica.Name)).MustHaveHappened();
 			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, replica.Name, query, balancer.Name)).MustHaveHappened();
+				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
 			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, replica.Name, query, balancer.Name)).MustHaveHappened();
+				A<Guid>.Ignored, balancer.Name, query, replica.Address)).MustHaveHappened();
 			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, query, replica.Name)).MustHaveHappened();
+				A<Guid>.Ignored, replica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, replica.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, replica.Address)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 
 		[Test]

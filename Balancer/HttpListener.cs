@@ -7,20 +7,20 @@ namespace Balancer
 {
 	abstract class HttpListener
 	{
-		private const string suffix = "method";
-		protected readonly IPEndPoint address;
+		public IPEndPoint Address { get; private set; }
+		protected const string suffix = "method";
 		protected static ILog log;
 		private Listener listener;
 
 		protected HttpListener(IPEndPoint address, ILog log)
 		{
-			this.address = address;
+			Address = address;
 			HttpListener.log = log;
 		}
 
 		public void Start()
 		{
-			listener = new Listener(address.Port, suffix, OnContextAsync, log);
+			listener = new Listener(Address.Port, suffix, OnContextAsync, log);
 			listener.Start();
 			log.InfoFormat("{0} started!", Name);
 		}
