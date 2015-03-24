@@ -139,6 +139,7 @@ namespace Balancer
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
 				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
 			replicas.Remove(replica);
+			replica.Stop();
 			var nextReplica = replicas[random.Next(replicas.Count())];
 			CheckBalancerSentQueryToReplica(nextReplica);
 			CheckReplicaReceivedQuery(nextReplica);
