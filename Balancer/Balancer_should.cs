@@ -114,24 +114,27 @@ namespace Balancer
 		public void repeat_query_to_other_replica_if_current_chosen_replica_fails()
 		{
 			AddAllTestReplicaAddressesToBalancer();
-			var nextReplica = replicas[random.Next(replicas.Count())];
-			nextReplica.Stop();
+			var replica = replicas[random.Next(replicas.Count())];
+			replica.Stop();
+
+			TestBadReplica(replica);
+		}
+
+		private void TestBadReplica(Replica replica)
+		{
 			CreateTestHttpRequestToBalancerAndGetResponse();
 
 			CheckBalancerReceivedQuery();
-			CheckBalancerSentQueryToReplica(nextReplica);
+			CheckBalancerSentQueryToReplica(replica);
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
-				A<Guid>.Ignored, balancer.Name, nextReplica.Address)).MustHaveHappened();
-			replicas.Remove(nextReplica);
-			nextReplica = replicas[random.Next(replicas.Count())];
+				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
+			replicas.Remove(replica);
+			var nextReplica = replicas[random.Next(replicas.Count())];
 			CheckBalancerSentQueryToReplica(nextReplica);
 			CheckReplicaReceivedQuery(nextReplica);
 			CheckReplicaSentProcessedQuery(nextReplica);
 			CheckBalancerReceivedProcessedQueryFromReplica(nextReplica);
 			CheckBalancerSentProcessedQuery();
-
-
-
 		}
 
 		private WebResponse CreateTestHttpRequestToBalancerAndGetResponse()
