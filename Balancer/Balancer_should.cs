@@ -24,7 +24,7 @@ namespace Balancer
 		public void TestFixtureSetUp()
 		{
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
-			query = "333";
+			query = "query=333";
 			processedQuery = QueryProcessor.Process(query);
 			replicaAddresses = new[]
 			{
@@ -58,17 +58,17 @@ namespace Balancer
 		{
 			balancer.TryAddReplica(replicaAddresses[0]);
 			CreateHttpRequestAndGetResponse(
-				string.Format("http://{0}/method?query={1}", balancerAddress, query));
+				string.Format("http://{0}/method?{1}", balancerAddress, query));
 
-			A.CallTo(() => log.InfoFormat("{0}: received {1} from {2}",
-				A<Guid>.Ignored, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 
 		[Test]
 		public void return_error_code_500_if_there_is_no_replicas()
 		{
 			var ex = Assert.Catch<WebException>(() => CreateHttpRequestAndGetResponse(
-				string.Format("http://{0}/method?query={1}", balancerAddress, query)));
+				string.Format("http://{0}/method?{1}", balancerAddress, query)));
 			StringAssert.Contains("500", ex.Message);
 
 			A.CallTo(() => log.InfoFormat("{0}: can't proxy request: there is no any replica",

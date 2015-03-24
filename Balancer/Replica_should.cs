@@ -23,8 +23,8 @@ namespace Balancer
 
 			request.GetResponse();
 
-			A.CallTo(() => log.InfoFormat("{0}: replica {1} received {2} from {3}",
-				A<Guid>.Ignored, replica.Id, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, replica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 	}
 }

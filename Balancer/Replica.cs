@@ -7,11 +7,6 @@ namespace Balancer
 {
 	class Replica : HttpListener
 	{
-		public string Id
-		{
-			get { return address.ToString(); }
-		}
-
 		public Replica(IPEndPoint replicaAddress, ILog log)
 			: base(replicaAddress, log)
 		{
@@ -20,16 +15,15 @@ namespace Balancer
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();
-			var query = context.Request.RawUrl.Split('?')[1];
+			var query = GetQuery(context.Request.RawUrl);
 			var remoteEndPoint = context.Request.RemoteEndPoint;
-			log.InfoFormat("{0}: replica {1} received {2} from {3}",
-				requestId, Id, query, remoteEndPoint);
+			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
 			context.Request.InputStream.Close();
 		}
 
-		protected override string Name
+		public override string Name
 		{
-			get { return string.Format("Replica {0}", Id); }
+			get { return string.Format("Replica {0}", address); }
 		}
 	}
 }

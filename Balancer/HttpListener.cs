@@ -33,6 +33,11 @@ namespace Balancer
 
 		protected abstract Task OnContextAsync(HttpListenerContext context);
 
-		protected abstract string Name { get; }
+		public abstract string Name { get; }
+
+		protected string GetQuery(string rawUrl)
+		{
+			return rawUrl.Split('?')[1];
+		}
 	}
 }

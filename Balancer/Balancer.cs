@@ -41,9 +41,9 @@ namespace Balancer
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();
-			var query = context.Request.QueryString["query"];
+			var query = GetQuery(context.Request.RawUrl);
 			var remoteEndPoint = context.Request.RemoteEndPoint;
-			log.InfoFormat("{0}: received {1} from {2}", requestId, query, remoteEndPoint);
+			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
 			if (replicas.Count == 0)
 			{
 				log.InfoFormat("{0}: can't proxy request: there is no any replica", requestId);
@@ -53,7 +53,7 @@ namespace Balancer
 			context.Response.OutputStream.Close();
 		}
 
-		protected override string Name
+		public override string Name
 		{
 			get { return "Balancer"; }
 		}
