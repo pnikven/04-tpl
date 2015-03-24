@@ -55,19 +55,33 @@ namespace Balancer
 			var query = GetQuery(context.Request.RawUrl);
 			var remoteEndPoint = context.Request.RemoteEndPoint;
 			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
-			if (replicaAddresses.Count == 0)
+
+			WebResponse replicaResponse = null;
+			while (replicaResponse == null)
 			{
-				log.InfoFormat("{0}: {1} can't proxy request: there is no any replica", requestId, Name);
-				context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+				if (replicaAddresses.Count == 0)
+				{
+					log.InfoFormat("{0}: {1} can't proxy request: there is no any replica", requestId, Name);
+					context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+					break;
+				}
+				try
+				{
+					LastChosenReplicaAddress = GetRandomReplicaAddress();
+					var replicaUrl = string.Format("http://{0}/{1}?{2}", LastChosenReplicaAddress, suffix, query);
+					var replicaRequest = WebRequest.CreateHttp(replicaUrl);
+					log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, LastChosenReplicaAddress);
+					replicaResponse = await replicaRequest.GetResponseAsync();
+				}
+				catch (Exception e)
+				{
+					log.Error(e);
+					log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
+						requestId, Name, LastChosenReplicaAddress);
+					replicaAddresses.Remove(LastChosenReplicaAddress);
+				}
 			}
-			else
-			{
-				LastChosenReplicaAddress = GetRandomReplicaAddress();
-				var replicaUrl = string.Format("http://{0}/{1}?{2}", LastChosenReplicaAddress, suffix, query);
-				var replicaRequest = WebRequest.CreateHttp(replicaUrl);
-				log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, LastChosenReplicaAddress);
-				WebResponse replicaResponse = null;
-				replicaResponse = await replicaRequest.GetResponseAsync();
+			if (replicaResponse != null)
 				using (var stream = replicaResponse.GetResponseStream())
 				{
 					var streamReader = new StreamReader(stream, Encoding.UTF8);
@@ -75,9 +89,8 @@ namespace Balancer
 					log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, processedQuery, LastChosenReplicaAddress);
 					stream.CopyToAsync(context.Response.OutputStream);
 					log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, processedQuery, remoteEndPoint);
-
 				}
-			}
+
 			context.Request.InputStream.Close();
 			context.Response.OutputStream.Close();
 		}
