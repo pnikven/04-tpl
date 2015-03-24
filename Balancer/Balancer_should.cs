@@ -61,8 +61,7 @@ namespace Balancer
 			balancer.TryAddReplicaAddress(replicaAddresses[0]);
 			CreateTestHttpRequestToBalancerAndGetResponse();
 
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			CheckBalancerReceivedQuery();
 		}
 
 		[Test]
@@ -82,18 +81,12 @@ namespace Balancer
 			balancer.TryAddReplicaAddress(replica.Address);
 			CreateTestHttpRequestToBalancerAndGetResponse();
 
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, query, replica.Address)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, replica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, replica.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, replica.Address)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			CheckBalancerReceivedQuery();
+			CheckBalancerSentQueryToReplica(replica);
+			CheckReplicaReceivedQuery(replica);
+			CheckReplicaSentProcessedQuery(replica);
+			CheckBalancerReceivedProcessedQueryFromReplica(replica);
+			CheckBalancerSentProcessedQuery();
 		}
 
 		[Test]
@@ -103,18 +96,12 @@ namespace Balancer
 			CreateTestHttpRequestToBalancerAndGetResponse();
 			var chosenReplica = replicas.FirstOrDefault(x => x.Address.Equals(balancer.LastChosenReplicaAddress));
 
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, query, chosenReplica.Address)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, chosenReplica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, chosenReplica.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, chosenReplica.Address)).MustHaveHappened();
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			CheckBalancerReceivedQuery();
+			CheckBalancerSentQueryToReplica(chosenReplica);
+			CheckReplicaReceivedQuery(chosenReplica);
+			CheckReplicaSentProcessedQuery(chosenReplica);
+			CheckBalancerReceivedProcessedQueryFromReplica(chosenReplica);
+			CheckBalancerSentProcessedQuery();
 		}
 
 		private void AddAllTestReplicaAddressesToBalancer()
@@ -129,6 +116,8 @@ namespace Balancer
 			AddAllTestReplicaAddressesToBalancer();
 			var nextReplica = replicas[random.Next(replicas.Count())];
 			nextReplica.Stop();
+			CreateTestHttpRequestToBalancerAndGetResponse();
+
 		}
 
 		private WebResponse CreateTestHttpRequestToBalancerAndGetResponse()
@@ -136,6 +125,42 @@ namespace Balancer
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
 			return request.GetResponse();
+		}
+
+		private void CheckBalancerReceivedQuery()
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+		}
+
+		private void CheckBalancerSentQueryToReplica(Replica replica)
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, query, replica.Address)).MustHaveHappened();
+		}
+
+		private void CheckReplicaReceivedQuery(Replica replica)
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, replica.Name, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
+		}
+
+		private void CheckReplicaSentProcessedQuery(Replica replica)
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, replica.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+		}
+
+		private void CheckBalancerReceivedProcessedQueryFromReplica(Replica chosenReplica)
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, chosenReplica.Address)).MustHaveHappened();
+		}
+
+		private void CheckBalancerSentProcessedQuery()
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
+				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 	}
 }
