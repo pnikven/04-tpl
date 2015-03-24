@@ -105,6 +105,8 @@ namespace Balancer
 			get { return "Balancer"; }
 		}
 
+		public int ReplicaTimeout { get; set; }
+
 		public IPEndPoint LastChosenReplicaAddress { get; private set; }
 	}
 }

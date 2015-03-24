@@ -14,6 +14,7 @@ namespace Balancer
 		}
 
 		public bool ShouldReturn500Error { get; set; }
+		public int RequestProcessingTime { get; set; }
 
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{

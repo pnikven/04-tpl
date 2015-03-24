@@ -17,6 +17,7 @@ namespace Balancer
 		private string processedQuery;
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
+		private const int balancerTimeoutForReplica = 1000;
 		private List<IPEndPoint> replicaAddresses;
 		private List<Replica> replicas;
 		private Random random;
@@ -33,7 +34,6 @@ namespace Balancer
 				new IPEndPoint(IPAddress.Loopback, 20001),
 				new IPEndPoint(IPAddress.Loopback, 20002),
 			}.ToList();
-			random = new Random(balancerRandomSeed);
 		}
 
 		[SetUp]
@@ -45,6 +45,7 @@ namespace Balancer
 			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToList();
 			foreach (var replica in replicas)
 				replica.Start();
+			random = new Random(balancerRandomSeed);
 		}
 
 		[TearDown]
@@ -130,6 +131,16 @@ namespace Balancer
 			TestBadReplica(replica);
 		}
 
+		[Test]
+		public void repeat_query_to_other_replica_if_current_chosen_replica_process_request_too_long()
+		{
+			AddAllTestReplicaAddressesToBalancer();
+			var replica = replicas[random.Next(replicas.Count())];
+			replica.RequestProcessingTime = balancerTimeoutForReplica + 1;
+
+			TestBadReplica(replica);
+		}
+
 		private void TestBadReplica(Replica replica)
 		{
 			CreateTestHttpRequestToBalancerAndGetResponse();
@@ -138,9 +149,9 @@ namespace Balancer
 			CheckBalancerSentQueryToReplica(replica);
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
 				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
-			replicas.Remove(replica);
-			replica.Stop();
-			var nextReplica = replicas[random.Next(replicas.Count())];
+			var updatedReplicas = replicas.ToList();
+			updatedReplicas.Remove(replica);
+			var nextReplica = updatedReplicas[random.Next(updatedReplicas.Count())];
 			CheckBalancerSentQueryToReplica(nextReplica);
 			CheckReplicaReceivedQuery(nextReplica);
 			CheckReplicaSentProcessedQuery(nextReplica);
