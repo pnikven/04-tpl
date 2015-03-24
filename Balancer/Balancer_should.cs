@@ -120,6 +120,16 @@ namespace Balancer
 			TestBadReplica(replica);
 		}
 
+		[Test]
+		public void repeat_query_to_other_replica_if_current_chosen_replica_returns_error_code_500()
+		{
+			AddAllTestReplicaAddressesToBalancer();
+			var replica = replicas[random.Next(replicas.Count())];
+			replica.ShouldReturn500Error = true;
+
+			TestBadReplica(replica);
+		}
+
 		private void TestBadReplica(Replica replica)
 		{
 			CreateTestHttpRequestToBalancerAndGetResponse();

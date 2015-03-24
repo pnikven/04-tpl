@@ -13,6 +13,8 @@ namespace Balancer
 		{
 		}
 
+		public bool ShouldReturn500Error { get; set; }
+
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();
