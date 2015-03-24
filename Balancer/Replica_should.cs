@@ -18,13 +18,14 @@ namespace Balancer
 			var replicaId = 0;
 			var replica = new Replica(replicaId, replicaAddress, log);
 			replica.Start();
-			var uri = string.Format("http://{0}/method?query=1", replicaAddress);
+			var query = "1";
+			var uri = string.Format("http://{0}/method?query={1}", replicaAddress, query);
 			var request = WebRequest.CreateHttp(uri);
 
 			request.GetResponse();
 
-			A.CallTo(() => log.InfoFormat("{0}: replica {3} received {1} from {2}",
-				A<Guid>.Ignored, "1", A<IPEndPoint>.Ignored, replicaId)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: replica {1} received {2} from {3}",
+				A<Guid>.Ignored, replicaId, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 	}
 }

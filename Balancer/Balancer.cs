@@ -10,12 +10,12 @@ namespace Balancer
 		private readonly IPEndPoint[] serverAddresses;
 
 		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] serverAddresses, ILog log)
-			: base(balancerAddress, OnContextAsync, log)
+			: base(balancerAddress, log)
 		{
 			this.serverAddresses = serverAddresses;
 		}
 
-		private static async Task OnContextAsync(HttpListenerContext context)
+		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();
 			var query = context.Request.QueryString["query"];

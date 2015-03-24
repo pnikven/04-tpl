@@ -10,23 +10,23 @@ namespace Balancer
 	{
 		private const string suffix = "method";
 		private readonly IPEndPoint address;
-		private readonly Func<HttpListenerContext, Task> onContextAsync;
 		protected static ILog log;
 		private Listener listener;
 
-		protected HttpListener(IPEndPoint address, Func<HttpListenerContext, Task> onContextAsync, ILog log)
+		protected HttpListener(IPEndPoint address, ILog log)
 		{
 			this.address = address;
-			this.onContextAsync = onContextAsync;
 			HttpListener.log = log;
 		}
 
 		public void Start()
 		{
-			listener = new Listener(address.Port, suffix, onContextAsync, log);
+			listener = new Listener(address.Port, suffix, OnContextAsync, log);
 			listener.Start();
 			log.InfoFormat("{0} started!", Name);
 		}
+
+		protected abstract Task OnContextAsync(HttpListenerContext context);
 
 		protected abstract string Name { get; }
 	}
