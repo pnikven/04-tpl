@@ -14,6 +14,7 @@ namespace Balancer
 		private ILog log;
 		private IPEndPoint balancerAddress;
 		private string query;
+		private string processedQuery;
 		private Balancer balancer;
 		private List<IPEndPoint> replicaAddresses;
 
@@ -23,6 +24,7 @@ namespace Balancer
 			log = A.Fake<ILog>();
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
 			query = "333";
+			processedQuery = QueryProcessor.Process(query);
 			balancer = new Balancer(balancerAddress, null, log);
 			balancer.Start();
 		}
