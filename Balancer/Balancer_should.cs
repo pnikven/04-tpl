@@ -118,7 +118,12 @@ namespace Balancer
 				A<Guid>.Ignored, balancer.Name, processedQuery, chosenReplica.Address)).MustHaveHappened();
 			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
 				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+		}
 
+		[Test]
+		public void repeat_query_to_other_replica_if_current_chosen_replica_fails()
+		{
+			
 		}
 
 		private WebResponse CreateHttpRequestAndGetResponse(string uri)

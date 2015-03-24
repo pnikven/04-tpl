@@ -12,12 +12,20 @@ namespace Balancer
 	class Balancer : HttpListener
 	{
 		private readonly List<IPEndPoint> replicaAddresses;
-		private readonly Random random = new Random();
+		private readonly Random random;
 
 		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] replicaAddresses, ILog log)
 			: base(balancerAddress, log)
 		{
 			this.replicaAddresses = replicaAddresses == null ? new List<IPEndPoint>() : replicaAddresses.ToList();
+			random = new Random();
+		}
+
+		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed)
+			: base(balancerAddress, log)
+		{
+			replicaAddresses = new List<IPEndPoint>();
+			random = new Random(randomSeed);
 		}
 
 		public bool TryAddReplicaAddress(IPEndPoint replicaAddress)
@@ -75,7 +83,7 @@ namespace Balancer
 
 		private IPEndPoint GetRandomReplicaAddress()
 		{
-			return replicaAddresses[random.Next(replicaAddresses.Count - 1)];
+			return replicaAddresses[random.Next(replicaAddresses.Count)];
 		}
 
 		public override string Name
