@@ -18,7 +18,7 @@ namespace Balancer
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
 		private List<IPEndPoint> replicaAddresses;
-		private Replica[] replicas;
+		private List<Replica> replicas;
 		private Random random;
 
 		[TestFixtureSetUp]
@@ -42,7 +42,7 @@ namespace Balancer
 			log = A.Fake<ILog>();
 			balancer = new Balancer(balancerAddress, log, balancerRandomSeed);
 			balancer.Start();
-			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToArray();
+			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToList();
 			foreach (var replica in replicas)
 				replica.Start();
 		}
@@ -70,8 +70,8 @@ namespace Balancer
 			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndGetResponse());
 			StringAssert.Contains("500", ex.Message);
 
-			A.CallTo(() => log.InfoFormat("{0}: can't proxy request: there is no any replica",
-				A<Guid>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request: there is no any replica",
+				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
 		}
 
 		[Test]
@@ -117,6 +117,20 @@ namespace Balancer
 			var nextReplica = replicas[random.Next(replicas.Count())];
 			nextReplica.Stop();
 			CreateTestHttpRequestToBalancerAndGetResponse();
+
+			CheckBalancerReceivedQuery();
+			CheckBalancerSentQueryToReplica(nextReplica);
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
+				A<Guid>.Ignored, balancer.Name, nextReplica.Address)).MustHaveHappened();
+			replicas.Remove(nextReplica);
+			nextReplica = replicas[random.Next(replicas.Count())];
+			CheckBalancerSentQueryToReplica(nextReplica);
+			CheckReplicaReceivedQuery(nextReplica);
+			CheckReplicaSentProcessedQuery(nextReplica);
+			CheckBalancerReceivedProcessedQueryFromReplica(nextReplica);
+			CheckBalancerSentProcessedQuery();
+
+
 
 		}
 

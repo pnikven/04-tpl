@@ -57,7 +57,7 @@ namespace Balancer
 			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
 			if (replicaAddresses.Count == 0)
 			{
-				log.InfoFormat("{0}: can't proxy request: there is no any replica", requestId);
+				log.InfoFormat("{0}: {1} can't proxy request: there is no any replica", requestId, Name);
 				context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 			}
 			else
@@ -66,7 +66,8 @@ namespace Balancer
 				var replicaUrl = string.Format("http://{0}/{1}?{2}", LastChosenReplicaAddress, suffix, query);
 				var replicaRequest = WebRequest.CreateHttp(replicaUrl);
 				log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, LastChosenReplicaAddress);
-				var replicaResponse = await replicaRequest.GetResponseAsync();
+				WebResponse replicaResponse = null;
+				replicaResponse = await replicaRequest.GetResponseAsync();
 				using (var stream = replicaResponse.GetResponseStream())
 				{
 					var streamReader = new StreamReader(stream, Encoding.UTF8);
