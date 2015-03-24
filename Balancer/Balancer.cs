@@ -19,13 +19,15 @@ namespace Balancer
 		{
 			this.replicaAddresses = replicaAddresses == null ? new List<IPEndPoint>() : replicaAddresses.ToList();
 			random = new Random();
+			ReplicaTimeout = 100 * 1000;
 		}
 
-		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed)
+		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed, int replicaTimeout)
 			: base(balancerAddress, log)
 		{
 			replicaAddresses = new List<IPEndPoint>();
 			random = new Random(randomSeed);
+			ReplicaTimeout = replicaTimeout;
 		}
 
 		public bool TryAddReplicaAddress(IPEndPoint replicaAddress)
@@ -70,8 +72,9 @@ namespace Balancer
 					LastChosenReplicaAddress = GetRandomReplicaAddress();
 					var replicaUrl = string.Format("http://{0}/{1}?{2}", LastChosenReplicaAddress, suffix, query);
 					var replicaRequest = WebRequest.CreateHttp(replicaUrl);
+					replicaRequest.Timeout = ReplicaTimeout;
 					log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, LastChosenReplicaAddress);
-					replicaResponse = await replicaRequest.GetResponseAsync();
+					replicaResponse = replicaRequest.GetResponse();
 				}
 				catch (Exception e)
 				{
@@ -105,7 +108,7 @@ namespace Balancer
 			get { return "Balancer"; }
 		}
 
-		public int ReplicaTimeout { get; set; }
+		private int ReplicaTimeout { get; set; }
 
 		public IPEndPoint LastChosenReplicaAddress { get; private set; }
 	}

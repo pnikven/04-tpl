@@ -40,7 +40,7 @@ namespace Balancer
 		public void SetUp()
 		{
 			log = A.Fake<ILog>();
-			balancer = new Balancer(balancerAddress, log, balancerRandomSeed);
+			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica);
 			balancer.Start();
 			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToList();
 			foreach (var replica in replicas)
