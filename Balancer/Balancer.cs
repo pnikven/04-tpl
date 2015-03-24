@@ -12,6 +12,7 @@ namespace Balancer
 	class Balancer : HttpListener
 	{
 		private readonly List<IPEndPoint> replicaAddresses;
+		private readonly Random random = new Random();
 
 		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] replicaAddresses, ILog log)
 			: base(balancerAddress, log)
@@ -51,18 +52,18 @@ namespace Balancer
 				log.InfoFormat("{0}: can't proxy request: there is no any replica", requestId);
 				context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 			}
-			else if (replicaAddresses.Count == 1)
+			else
 			{
-				var replicaAddress = replicaAddresses[0];
-				var replicaUrl = string.Format("http://{0}/{1}?{2}", replicaAddress, suffix, query);
+				LastChosenReplicaAddress = GetRandomReplicaAddress();
+				var replicaUrl = string.Format("http://{0}/{1}?{2}", LastChosenReplicaAddress, suffix, query);
 				var replicaRequest = WebRequest.CreateHttp(replicaUrl);
-				log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, replicaAddress);
+				log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, LastChosenReplicaAddress);
 				var replicaResponse = await replicaRequest.GetResponseAsync();
 				using (var stream = replicaResponse.GetResponseStream())
 				{
 					var streamReader = new StreamReader(stream, Encoding.UTF8);
 					var processedQuery = await streamReader.ReadToEndAsync();
-					log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, processedQuery, replicaAddress);
+					log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, processedQuery, LastChosenReplicaAddress);
 					stream.CopyToAsync(context.Response.OutputStream);
 					log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, processedQuery, remoteEndPoint);
 
@@ -70,6 +71,11 @@ namespace Balancer
 			}
 			context.Request.InputStream.Close();
 			context.Response.OutputStream.Close();
+		}
+
+		private IPEndPoint GetRandomReplicaAddress()
+		{
+			return replicaAddresses[random.Next(replicaAddresses.Count - 1)];
 		}
 
 		public override string Name
