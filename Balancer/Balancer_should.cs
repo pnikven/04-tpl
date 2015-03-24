@@ -18,6 +18,7 @@ namespace Balancer
 		private string processedQuery;
 		private Balancer balancer;
 		private List<IPEndPoint> replicaAddresses;
+		private Replica[] replicas;
 
 		[TestFixtureSetUp]
 		public void TestFixtureSetUp()
@@ -34,8 +35,16 @@ namespace Balancer
 				new IPEndPoint(IPAddress.Loopback, 20001),
 				new IPEndPoint(IPAddress.Loopback, 20002),
 			}.ToList();
-			foreach (var replicaAddress in replicaAddresses)
-				new Replica(replicaAddress, log).Start();
+			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToArray();
+			foreach (var replica in replicas)
+				replica.Start();
+		}
+
+		[TestFixtureTearDown]
+		public void TestFixtureTearDown()
+		{
+			foreach (var replica in replicas)
+				replica.Stop();
 		}
 
 		[SetUp]

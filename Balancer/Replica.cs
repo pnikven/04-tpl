@@ -20,7 +20,7 @@ namespace Balancer
 		protected override async Task OnContextAsync(HttpListenerContext context)
 		{
 			var requestId = Guid.NewGuid();
-			var query = context.Request.QueryString["query"];
+			var query = context.Request.RawUrl.Split('?')[1];
 			var remoteEndPoint = context.Request.RemoteEndPoint;
 			log.InfoFormat("{0}: replica {1} received {2} from {3}",
 				requestId, Id, query, remoteEndPoint);
