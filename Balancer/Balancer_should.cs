@@ -4,6 +4,7 @@ using System.Net;
 using FakeItEasy;
 using log4net;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Balancer
 {
@@ -14,9 +15,10 @@ namespace Balancer
 		private IPEndPoint balancerAddress;
 		private string query;
 		private Balancer balancer;
-
-		[SetUp]
-		public void SetUp()
+		private List<IPEndPoint> replicaAddresses;
+			
+		[TestFixtureSetUp]
+		public void TestFixtureSetUp()
 		{
 			log = A.Fake<ILog>();
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
@@ -25,13 +27,18 @@ namespace Balancer
 			balancer.Start();
 		}
 
+		[SetUp]
+		public void SetUp()
+		{
+			balancer.ClearReplicas();
+		}
+
 		[Test]
 		public void listen_http_requests()
 		{
-			var uri = string.Format("http://{0}/method?query={1}", balancerAddress, query);
-			var request = WebRequest.CreateHttp(uri);
-
-			request.GetResponse();
+			balancer.TryAddReplica(new IPEndPoint(IPAddress.Loopback, 20000));
+			CreateHttpRequestAndGetResponse(
+				string.Format("http://{0}/method?query={1}", balancerAddress, query));
 
 			A.CallTo(() => log.InfoFormat("{0}: received {1} from {2}",
 				A<Guid>.Ignored, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
@@ -40,24 +47,25 @@ namespace Balancer
 		[Test]
 		public void return_error_code_500_if_there_is_no_replicas()
 		{
-			var balancer = new Balancer(balancerAddress, null, log);
-			balancer.Start();
-			var uri = string.Format("http://{0}/method?query={1}", balancerAddress, query);
-			var request = WebRequest.CreateHttp(uri);
+			var ex = Assert.Catch<WebException>(() => CreateHttpRequestAndGetResponse(
+				string.Format("http://{0}/method?query={1}", balancerAddress, query)));
+			StringAssert.Contains("500", ex.Message);
 
-			request.GetResponse();
-
-			A.CallTo(() => log.InfoFormat("{0}: received {1} from {2}",
-				A<Guid>.Ignored, query, A<IPEndPoint>.Ignored)).MustHaveHappened();
-
-
+			A.CallTo(() => log.InfoFormat("{0}: can't proxy request: there is no any replica",
+				A<Guid>.Ignored)).MustHaveHappened();
 		}
 
 		[Test]
+		[Ignore]
 		public void proxy_client_request_to_random_replica()
 		{
 
 		}
 
+		private WebResponse CreateHttpRequestAndGetResponse(string uri)
+		{
+			var request = WebRequest.CreateHttp(uri);
+			return request.GetResponse();
+		}
 	}
 }
