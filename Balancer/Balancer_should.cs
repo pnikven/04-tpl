@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using FakeItEasy;
 using log4net;
@@ -27,6 +28,14 @@ namespace Balancer
 			processedQuery = QueryProcessor.Process(query);
 			balancer = new Balancer(balancerAddress, null, log);
 			balancer.Start();
+			replicaAddresses = new[]
+			{
+				new IPEndPoint(IPAddress.Loopback, 20000),
+				new IPEndPoint(IPAddress.Loopback, 20001),
+				new IPEndPoint(IPAddress.Loopback, 20002),
+			}.ToList();
+			foreach (var replicaAddress in replicaAddresses)
+				new Replica(replicaAddress, log).Start();
 		}
 
 		[SetUp]
@@ -38,7 +47,7 @@ namespace Balancer
 		[Test]
 		public void listen_http_requests()
 		{
-			balancer.TryAddReplica(new IPEndPoint(IPAddress.Loopback, 20000));
+			balancer.TryAddReplica(replicaAddresses[0]);
 			CreateHttpRequestAndGetResponse(
 				string.Format("http://{0}/method?query={1}", balancerAddress, query));
 
@@ -60,7 +69,7 @@ namespace Balancer
 		[Test]
 		public void proxy_client_request_to_replica_if_there_is_exactly_one_replica()
 		{
-			var replicaAddress = new IPEndPoint(IPAddress.Loopback, 20000);
+			var replicaAddress = replicaAddresses[0];
 			balancer.TryAddReplica(replicaAddress);
 			CreateHttpRequestAndGetResponse(
 				string.Format("http://{0}/method?query={1}", balancerAddress, query));

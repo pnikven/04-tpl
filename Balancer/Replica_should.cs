@@ -16,7 +16,7 @@ namespace Balancer
 		{
 			var log = A.Fake<ILog>();
 			var replicaId = 0;
-			var replica = new Replica(replicaId, replicaAddress, log);
+			var replica = new Replica(replicaAddress, log);
 			replica.Start();
 			var query = "1";
 			var uri = string.Format("http://{0}/method?query={1}", replicaAddress, query);

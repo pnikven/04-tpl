@@ -7,12 +7,14 @@ namespace Balancer
 {
 	class Replica : HttpListener
 	{
-		public int Id { get; private set; }
+		public string Id
+		{
+			get { return address.ToString(); }
+		}
 
-		public Replica(int replicaId, IPEndPoint replicaAddress, ILog log)
+		public Replica(IPEndPoint replicaAddress, ILog log)
 			: base(replicaAddress, log)
 		{
-			Id = replicaId;
 		}
 
 		protected override async Task OnContextAsync(HttpListenerContext context)

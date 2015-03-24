@@ -8,7 +8,7 @@ namespace Balancer
 	abstract class HttpListener
 	{
 		private const string suffix = "method";
-		private readonly IPEndPoint address;
+		protected readonly IPEndPoint address;
 		protected static ILog log;
 		private Listener listener;
 
