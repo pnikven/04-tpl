@@ -16,7 +16,7 @@ namespace Balancer
 		private string query;
 		private Balancer balancer;
 		private List<IPEndPoint> replicaAddresses;
-			
+
 		[TestFixtureSetUp]
 		public void TestFixtureSetUp()
 		{
@@ -53,6 +53,24 @@ namespace Balancer
 
 			A.CallTo(() => log.InfoFormat("{0}: can't proxy request: there is no any replica",
 				A<Guid>.Ignored)).MustHaveHappened();
+		}
+
+		[Test]
+		public void proxy_client_request_to_replica_if_there_is_exactly_one_replica()
+		{
+			var replicaAddress = new IPEndPoint(IPAddress.Loopback, 20000);
+			balancer.TryAddReplica(replicaAddress);
+			CreateHttpRequestAndGetResponse(
+				string.Format("http://{0}/method?query={1}", balancerAddress, query));
+
+			A.CallTo(() => log.InfoFormat("{0}: sent {1} to replica {2}",
+				A<Guid>.Ignored, query, replicaAddress)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: replica {1} received {2} from {3}",
+				A<Guid>.Ignored, replicaAddress, query, balancerAddress)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: replica {1} sent {2} to {3}",
+				A<Guid>.Ignored, replicaAddress, query, balancerAddress)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: received {1} from replica {2}",
+				A<Guid>.Ignored, query, replicaAddress)).MustHaveHappened();
 		}
 
 		[Test]
