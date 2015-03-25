@@ -65,7 +65,7 @@ namespace Balancer
 			{
 				using (var stream = replicaResponse.GetResponseStream())
 				{
-					if (acceptEncoding.Contains("deflate"))
+					if (acceptEncoding != null && acceptEncoding.Contains("deflate"))
 					{
 						context.Response.AddHeader("Content-Encoding", "deflate");
 						using (var compressionStream = new DeflateStream(context.Response.OutputStream, CompressionMode.Compress))
