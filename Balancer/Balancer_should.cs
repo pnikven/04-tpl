@@ -51,9 +51,14 @@ namespace Balancer
 		[TearDown]
 		public void TestFixtureTearDown()
 		{
+			StopAllReplicas();
+			balancer.Stop();
+		}
+
+		private void StopAllReplicas()
+		{
 			foreach (var replica in replicas)
 				replica.Stop();
-			balancer.Stop();
 		}
 
 		[Test]
@@ -161,6 +166,27 @@ namespace Balancer
 			replica = leftReplicas[random.Next(leftReplicas.Count())];
 			CheckGoodReplica(replica);
 			CheckBalancerSentProcessedQuery();
+		}
+
+		[Test]
+		public void return_error_code_500_if_all_replicas_fail()
+		{
+			AddAllTestReplicaAddressesToBalancer();
+			StopAllReplicas();
+
+			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndGetResponse());
+			StringAssert.Contains("500", ex.Message);
+
+			CheckBalancerReceivedQuery();
+			var leftReplicas = replicas.ToList();
+			while (leftReplicas.Count > 0)
+			{
+				var replica = leftReplicas[random.Next(leftReplicas.Count())];
+				CheckBadReplica(replica);
+				leftReplicas.Remove(replica);
+			}
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request: there is no any replica",
+				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
 		}
 
 		private void StopReplicasInPredefinedRandomOrder(int replicasToBeStoppedCount)
