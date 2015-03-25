@@ -83,10 +83,7 @@ namespace Balancer
 			CreateTestHttpRequestToBalancerAndGetResponse();
 
 			CheckBalancerReceivedQuery();
-			CheckBalancerSentQueryToReplica(replica);
-			CheckReplicaReceivedQuery(replica);
-			CheckReplicaSentProcessedQuery(replica);
-			CheckBalancerReceivedProcessedQueryFromReplica(replica);
+			CheckGoodReplica(replica);
 			CheckBalancerSentProcessedQuery();
 		}
 
@@ -98,10 +95,7 @@ namespace Balancer
 			var chosenReplica = replicas.FirstOrDefault(x => x.Address.Equals(balancer.LastChosenReplicaAddress));
 
 			CheckBalancerReceivedQuery();
-			CheckBalancerSentQueryToReplica(chosenReplica);
-			CheckReplicaReceivedQuery(chosenReplica);
-			CheckReplicaSentProcessedQuery(chosenReplica);
-			CheckBalancerReceivedProcessedQueryFromReplica(chosenReplica);
+			CheckGoodReplica(chosenReplica);
 			CheckBalancerSentProcessedQuery();
 		}
 
@@ -111,51 +105,37 @@ namespace Balancer
 				balancer.TryAddReplicaAddress(replica.Address);
 		}
 
-		[Test]
-		public void repeat_query_to_other_replica_if_current_chosen_replica_fails()
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		public void repeat_query_to_other_replica_if_current_chosen_replica_fails(int testCaseId)
 		{
 			AddAllTestReplicaAddressesToBalancer();
-			var replica = replicas[random.Next(replicas.Count())];
-			replica.Stop();
 
-			TestBadReplica(replica);
-		}
+			var leftReplicas = replicas.ToList();
+			var replica = leftReplicas[random.Next(leftReplicas.Count())];
+			switch (testCaseId)
+			{
+				case 1: replica.Stop();
+					break;
+				case 2: replica.ShouldReturn500Error = true;
+					break;
+				case 3: replica.RequestProcessingTime = balancerTimeoutForReplica + 1;
+					break;
+				default:
+					throw new NotImplementedException();
+			}
 
-		[Test]
-		public void repeat_query_to_other_replica_if_current_chosen_replica_returns_error_code_500()
-		{
-			AddAllTestReplicaAddressesToBalancer();
-			var replica = replicas[random.Next(replicas.Count())];
-			replica.ShouldReturn500Error = true;
-
-			TestBadReplica(replica);
-		}
-
-		[Test]
-		public void repeat_query_to_other_replica_if_current_chosen_replica_process_request_too_long()
-		{
-			AddAllTestReplicaAddressesToBalancer();
-			var replica = replicas[random.Next(replicas.Count())];
-			replica.RequestProcessingTime = balancerTimeoutForReplica + 1;
-
-			TestBadReplica(replica);
-		}
-
-		private void TestBadReplica(Replica replica)
-		{
 			CreateTestHttpRequestToBalancerAndGetResponse();
-
 			CheckBalancerReceivedQuery();
-			CheckBalancerSentQueryToReplica(replica);
-			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
-				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
-			var updatedReplicas = replicas.ToList();
-			updatedReplicas.Remove(replica);
-			var nextReplica = updatedReplicas[random.Next(updatedReplicas.Count())];
-			CheckBalancerSentQueryToReplica(nextReplica);
-			CheckReplicaReceivedQuery(nextReplica);
-			CheckReplicaSentProcessedQuery(nextReplica);
-			CheckBalancerReceivedProcessedQueryFromReplica(nextReplica);
+
+			CheckBadReplica(replica);
+
+			leftReplicas.Remove(replica);
+			var nextReplica = leftReplicas[random.Next(leftReplicas.Count())];
+
+			CheckGoodReplica(nextReplica);
+
 			CheckBalancerSentProcessedQuery();
 		}
 
@@ -164,6 +144,21 @@ namespace Balancer
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
 			return request.GetResponse();
+		}
+
+		private void CheckGoodReplica(Replica replica)
+		{
+			CheckBalancerSentQueryToReplica(replica);
+			CheckReplicaReceivedQuery(replica);
+			CheckReplicaSentProcessedQuery(replica);
+			CheckBalancerReceivedProcessedQueryFromReplica(replica);
+		}
+
+		private void CheckBadReplica(Replica replica)
+		{
+			CheckBalancerSentQueryToReplica(replica);
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
+				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
 		}
 
 		private void CheckBalancerReceivedQuery()
