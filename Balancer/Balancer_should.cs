@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using FakeItEasy;
 using log4net;
 using NUnit.Framework;
@@ -65,7 +67,7 @@ namespace Balancer
 		public void listen_http_requests()
 		{
 			balancer.TryAddReplicaAddress(replicaAddresses[0]);
-			CreateTestHttpRequestToBalancerAndGetResponse();
+			CreateTestHttpRequestToBalancerAndCheckResponse();
 
 			CheckBalancerReceivedQuery();
 		}
@@ -73,7 +75,7 @@ namespace Balancer
 		[Test]
 		public void return_error_code_500_if_there_is_no_replicas()
 		{
-			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndGetResponse());
+			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndCheckResponse());
 			StringAssert.Contains("500", ex.Message);
 
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request: there is no any replica",
@@ -85,7 +87,7 @@ namespace Balancer
 		{
 			var replica = replicas[0];
 			balancer.TryAddReplicaAddress(replica.Address);
-			CreateTestHttpRequestToBalancerAndGetResponse();
+			CreateTestHttpRequestToBalancerAndCheckResponse();
 
 			CheckBalancerReceivedQuery();
 			CheckGoodReplica(replica);
@@ -96,8 +98,8 @@ namespace Balancer
 		public void proxy_client_request_to_random_replica()
 		{
 			AddAllTestReplicaAddressesToBalancer();
-			CreateTestHttpRequestToBalancerAndGetResponse();
-			var chosenReplica = replicas.FirstOrDefault(x => x.Address.Equals(balancer.LastChosenReplicaAddress));
+			CreateTestHttpRequestToBalancerAndCheckResponse();
+			var chosenReplica = replicas[random.Next(replicas.Count())];
 
 			CheckBalancerReceivedQuery();
 			CheckGoodReplica(chosenReplica);
@@ -131,7 +133,7 @@ namespace Balancer
 					throw new NotImplementedException();
 			}
 
-			CreateTestHttpRequestToBalancerAndGetResponse();
+			CreateTestHttpRequestToBalancerAndCheckResponse();
 			CheckBalancerReceivedQuery();
 
 			CheckBadReplica(replica);
@@ -151,12 +153,12 @@ namespace Balancer
 			var replicasToBeStoppedCount = replicas.Count - 1;
 			StopReplicasInPredefinedRandomOrder(replicasToBeStoppedCount);
 
-			CreateTestHttpRequestToBalancerAndGetResponse();
+			CreateTestHttpRequestToBalancerAndCheckResponse();
 			CheckBalancerReceivedQuery();
 
 			var leftReplicas = replicas.ToList();
 			Replica replica;
-			while (replicasToBeStoppedCount>0)
+			while (replicasToBeStoppedCount > 0)
 			{
 				replica = leftReplicas[random.Next(leftReplicas.Count())];
 				CheckBadReplica(replica);
@@ -174,7 +176,7 @@ namespace Balancer
 			AddAllTestReplicaAddressesToBalancer();
 			StopAllReplicas();
 
-			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndGetResponse());
+			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndCheckResponse());
 			StringAssert.Contains("500", ex.Message);
 
 			CheckBalancerReceivedQuery();
@@ -192,7 +194,7 @@ namespace Balancer
 		private void StopReplicasInPredefinedRandomOrder(int replicasToBeStoppedCount)
 		{
 			var leftReplicas = replicas.ToList();
-			while (replicasToBeStoppedCount>0)
+			while (replicasToBeStoppedCount > 0)
 			{
 				var replica = leftReplicas[random.Next(leftReplicas.Count())];
 				replica.Stop();
@@ -207,11 +209,17 @@ namespace Balancer
 			random = new Random(balancerRandomSeed);
 		}
 
-		private WebResponse CreateTestHttpRequestToBalancerAndGetResponse()
+		private void CreateTestHttpRequestToBalancerAndCheckResponse()
 		{
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
-			return request.GetResponse();
+			var balancerResponse = request.GetResponse();
+			using (var stream = balancerResponse.GetResponseStream())
+			{
+				var streamReader = new StreamReader(stream, Encoding.UTF8);
+				var actualProcessedQuery = streamReader.ReadToEnd();
+				Assert.AreEqual(processedQuery, actualProcessedQuery);
+			}
 		}
 
 		private void CheckGoodReplica(Replica replica)
@@ -255,14 +263,14 @@ namespace Balancer
 
 		private void CheckBalancerReceivedProcessedQueryFromReplica(Replica chosenReplica)
 		{
-			A.CallTo(() => log.InfoFormat("{0}: {1} received {2} from {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, chosenReplica.Address)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} received processed query from {2}",
+				A<Guid>.Ignored, balancer.Name, chosenReplica.Address)).MustHaveHappened();
 		}
 
 		private void CheckBalancerSentProcessedQuery()
 		{
-			A.CallTo(() => log.InfoFormat("{0}: {1} sent {2} to {3}",
-				A<Guid>.Ignored, balancer.Name, processedQuery, A<IPEndPoint>.Ignored)).MustHaveHappened();
+			A.CallTo(() => log.InfoFormat("{0}: {1} sent processed query to {2}",
+				A<Guid>.Ignored, balancer.Name, A<IPEndPoint>.Ignored)).MustHaveHappened();
 		}
 	}
 }
