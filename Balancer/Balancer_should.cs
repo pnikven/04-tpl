@@ -45,7 +45,7 @@ namespace Balancer
 			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToList();
 			foreach (var replica in replicas)
 				replica.Start();
-			random = new Random(balancerRandomSeed);
+			ResetRandom();
 		}
 
 		[TearDown]
@@ -137,6 +137,48 @@ namespace Balancer
 			CheckGoodReplica(nextReplica);
 
 			CheckBalancerSentProcessedQuery();
+		}
+
+		[Test]
+		public void repeat_query_to_left_replicas_while_active_replica_will_not_be_found()
+		{
+			AddAllTestReplicaAddressesToBalancer();
+			var replicasToBeStoppedCount = replicas.Count - 1;
+			StopReplicasInPredefinedRandomOrder(replicasToBeStoppedCount);
+
+			CreateTestHttpRequestToBalancerAndGetResponse();
+			CheckBalancerReceivedQuery();
+
+			var leftReplicas = replicas.ToList();
+			Replica replica;
+			while (replicasToBeStoppedCount>0)
+			{
+				replica = leftReplicas[random.Next(leftReplicas.Count())];
+				CheckBadReplica(replica);
+				leftReplicas.Remove(replica);
+				replicasToBeStoppedCount--;
+			}
+			replica = leftReplicas[random.Next(leftReplicas.Count())];
+			CheckGoodReplica(replica);
+			CheckBalancerSentProcessedQuery();
+		}
+
+		private void StopReplicasInPredefinedRandomOrder(int replicasToBeStoppedCount)
+		{
+			var leftReplicas = replicas.ToList();
+			while (replicasToBeStoppedCount>0)
+			{
+				var replica = leftReplicas[random.Next(leftReplicas.Count())];
+				replica.Stop();
+				leftReplicas.Remove(replica);
+				replicasToBeStoppedCount--;
+			}
+			ResetRandom();
+		}
+
+		private void ResetRandom()
+		{
+			random = new Random(balancerRandomSeed);
 		}
 
 		private WebResponse CreateTestHttpRequestToBalancerAndGetResponse()
