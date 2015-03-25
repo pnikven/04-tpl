@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -206,24 +207,37 @@ namespace Balancer
 			random = new Random(balancerRandomSeed);
 		}
 
-		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool deflate = false)
+		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool clientSopportsCompressing = false)
 		{
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
-			if (deflate)
+			if (clientSopportsCompressing)
+			{
 				request.Headers.Add("Accept-Encoding", "deflate");
+				request.Headers.Add("Accept-Encoding", "gzip");
+			}
 			var balancerResponse = request.GetResponse();
-			if (deflate)
-				Assert.AreEqual("zip", balancerResponse.Headers.Get("Content-Encoding"));
 			using (var stream = balancerResponse.GetResponseStream())
 			{
-				if(deflate)
-					throw new NotImplementedException();
+				if (clientSopportsCompressing)
+				{
+					using (var decompressedStream = new DeflateStream(stream, CompressionMode.Decompress))
+					{
+						using (var streamReader = new StreamReader(decompressedStream, Encoding.UTF8))
+						{
+							var actualProcessedQuery = streamReader.ReadToEnd();
+							Assert.AreEqual(processedQuery, actualProcessedQuery);
+						}
+					}
+					Assert.AreEqual("deflate", balancerResponse.Headers.Get("Content-Encoding"));
+				}
 				else
 				{
-					var streamReader = new StreamReader(stream, Encoding.UTF8);
-					var actualProcessedQuery = streamReader.ReadToEnd();
-					Assert.AreEqual(processedQuery, actualProcessedQuery);					
+					using (var streamReader = new StreamReader(stream, Encoding.UTF8))
+					{
+						var actualProcessedQuery = streamReader.ReadToEnd();
+						Assert.AreEqual(processedQuery, actualProcessedQuery);
+					}
 				}
 			}
 		}

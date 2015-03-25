@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -55,6 +56,7 @@ namespace Balancer
 		{
 			var requestId = Guid.NewGuid();
 			var query = GetQuery(context.Request.RawUrl);
+			var acceptEncoding = context.Request.Headers.GetValues("Accept-Encoding");
 			var remoteEndPoint = context.Request.RemoteEndPoint;
 			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
 
@@ -62,7 +64,18 @@ namespace Balancer
 			if (TryProxyRequestToRandomReplica(requestId, query, out replicaResponse))
 			{
 				using (var stream = replicaResponse.GetResponseStream())
-					await stream.CopyToAsync(context.Response.OutputStream);
+				{
+					if (acceptEncoding.Contains("deflate"))
+					{
+						context.Response.AddHeader("Content-Encoding", "deflate");
+						using (var compressionStream = new DeflateStream(context.Response.OutputStream, CompressionMode.Compress))
+						{
+							await stream.CopyToAsync(compressionStream);
+						}
+					}
+					else
+						await stream.CopyToAsync(context.Response.OutputStream);
+				}
 				log.InfoFormat("{0}: {1} sent processed query to {2}", requestId, Name, remoteEndPoint);
 			}
 			else
