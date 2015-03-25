@@ -206,16 +206,25 @@ namespace Balancer
 			random = new Random(balancerRandomSeed);
 		}
 
-		private void CreateTestHttpRequestToBalancerAndCheckResponse()
+		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool deflate = false)
 		{
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
+			if (deflate)
+				request.Headers.Add("Accept-Encoding", "deflate");
 			var balancerResponse = request.GetResponse();
+			if (deflate)
+				Assert.AreEqual("zip", balancerResponse.Headers.Get("Content-Encoding"));
 			using (var stream = balancerResponse.GetResponseStream())
 			{
-				var streamReader = new StreamReader(stream, Encoding.UTF8);
-				var actualProcessedQuery = streamReader.ReadToEnd();
-				Assert.AreEqual(processedQuery, actualProcessedQuery);
+				if(deflate)
+					throw new NotImplementedException();
+				else
+				{
+					var streamReader = new StreamReader(stream, Encoding.UTF8);
+					var actualProcessedQuery = streamReader.ReadToEnd();
+					Assert.AreEqual(processedQuery, actualProcessedQuery);					
+				}
 			}
 		}
 
@@ -274,6 +283,13 @@ namespace Balancer
 		{
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to any replica",
 				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
+		}
+
+		[Test]
+		public void compress_replica_reply_if_client_supports_deflate()
+		{
+			balancer.TryAddReplicaAddress(replicaAddresses[0]);
+			CreateTestHttpRequestToBalancerAndCheckResponse(true);
 		}
 	}
 }
