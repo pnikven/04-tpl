@@ -63,19 +63,10 @@ namespace Balancer
 			WebResponse replicaResponse;
 			if (TryProxyRequestToRandomReplica(requestId, query, out replicaResponse))
 			{
-				using (var stream = replicaResponse.GetResponseStream())
-				{
-					if (acceptEncoding != null && acceptEncoding.Contains("deflate"))
-					{
-						context.Response.AddHeader("Content-Encoding", "deflate");
-						using (var compressionStream = new DeflateStream(context.Response.OutputStream, CompressionMode.Compress))
-						{
-							await stream.CopyToAsync(compressionStream);
-						}
-					}
-					else
-						await stream.CopyToAsync(context.Response.OutputStream);
-				}
+				var deflate = acceptEncoding != null && acceptEncoding.Contains("deflate");
+				if (deflate)
+					context.Response.AddHeader("Content-Encoding", "deflate");
+				await CopyStream(replicaResponse.GetResponseStream(), context.Response.OutputStream, deflate);
 				log.InfoFormat("{0}: {1} sent processed query to {2}", requestId, Name, remoteEndPoint);
 			}
 			else
@@ -86,6 +77,16 @@ namespace Balancer
 
 			context.Request.InputStream.Close();
 			context.Response.OutputStream.Close();
+		}
+
+		private async Task CopyStream(Stream source, Stream destination, bool deflate)
+		{
+			using (source)
+				if (deflate)
+					using (var compressionStream = new DeflateStream(destination, CompressionMode.Compress))
+						await source.CopyToAsync(compressionStream);
+				else
+					await source.CopyToAsync(destination);
 		}
 
 		private bool TryProxyRequestToRandomReplica(Guid requestId, string query, out WebResponse replicaResponse)

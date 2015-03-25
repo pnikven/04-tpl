@@ -211,34 +211,39 @@ namespace Balancer
 		{
 			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
+
 			if (clientSopportsCompressing)
-			{
-				request.Headers.Add("Accept-Encoding", "deflate");
-				request.Headers.Add("Accept-Encoding", "gzip");
-			}
-			var balancerResponse = request.GetResponse();
+				CheckBalancerDeflatedResponse(request);
+			else
+				CheckBalancerResponse(request);
+		}
+
+		private void CheckBalancerResponse(HttpWebRequest balancerRequest)
+		{
+			var balancerResponse = balancerRequest.GetResponse();
+			using (var stream = balancerResponse.GetResponseStream())
+				CheckReturnedContent(stream);
+		}
+
+		private void CheckBalancerDeflatedResponse(HttpWebRequest balancerRequest)
+		{
+			balancerRequest.Headers.Add("Accept-Encoding", "deflate");
+			balancerRequest.Headers.Add("Accept-Encoding", "gzip");
+			var balancerResponse = balancerRequest.GetResponse();
 			using (var stream = balancerResponse.GetResponseStream())
 			{
-				if (clientSopportsCompressing)
-				{
-					using (var decompressedStream = new DeflateStream(stream, CompressionMode.Decompress))
-					{
-						using (var streamReader = new StreamReader(decompressedStream, Encoding.UTF8))
-						{
-							var actualProcessedQuery = streamReader.ReadToEnd();
-							Assert.AreEqual(processedQuery, actualProcessedQuery);
-						}
-					}
-					Assert.AreEqual("deflate", balancerResponse.Headers.Get("Content-Encoding"));
-				}
-				else
-				{
-					using (var streamReader = new StreamReader(stream, Encoding.UTF8))
-					{
-						var actualProcessedQuery = streamReader.ReadToEnd();
-						Assert.AreEqual(processedQuery, actualProcessedQuery);
-					}
-				}
+				using (var decompressedStream = new DeflateStream(stream, CompressionMode.Decompress))
+					CheckReturnedContent(decompressedStream);
+				Assert.AreEqual("deflate", balancerResponse.Headers.Get("Content-Encoding"));
+			}
+		}
+
+		private void CheckReturnedContent(Stream stream)
+		{
+			using (var streamReader = new StreamReader(stream, Encoding.UTF8))
+			{
+				var actualProcessedQuery = streamReader.ReadToEnd();
+				Assert.AreEqual(processedQuery, actualProcessedQuery);
 			}
 		}
 
