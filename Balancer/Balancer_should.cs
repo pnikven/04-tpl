@@ -77,9 +77,7 @@ namespace Balancer
 		{
 			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndCheckResponse());
 			StringAssert.Contains("500", ex.Message);
-
-			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request: there is no any replica",
-				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
+			CheckBalancerCannotProxyRequestToAnyReplica();
 		}
 
 		[Test]
@@ -178,6 +176,7 @@ namespace Balancer
 
 			var ex = Assert.Catch<WebException>(() => CreateTestHttpRequestToBalancerAndCheckResponse());
 			StringAssert.Contains("500", ex.Message);
+			CheckBalancerCannotProxyRequestToAnyReplica();
 
 			CheckBalancerReceivedQuery();
 			var leftReplicas = replicas.ToList();
@@ -187,8 +186,6 @@ namespace Balancer
 				CheckBadReplica(replica);
 				leftReplicas.Remove(replica);
 			}
-			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request: there is no any replica",
-				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
 		}
 
 		private void StopReplicasInPredefinedRandomOrder(int replicasToBeStoppedCount)
@@ -233,7 +230,7 @@ namespace Balancer
 		private void CheckBadReplica(Replica replica)
 		{
 			CheckBalancerSentQueryToReplica(replica);
-			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}: try next replica",
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}",
 				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
 		}
 
@@ -271,6 +268,12 @@ namespace Balancer
 		{
 			A.CallTo(() => log.InfoFormat("{0}: {1} sent processed query to {2}",
 				A<Guid>.Ignored, balancer.Name, A<IPEndPoint>.Ignored)).MustHaveHappened();
+		}
+
+		private void CheckBalancerCannotProxyRequestToAnyReplica()
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to any replica",
+				A<Guid>.Ignored, balancer.Name)).MustHaveHappened();
 		}
 	}
 }
