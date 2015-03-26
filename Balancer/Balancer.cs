@@ -13,6 +13,7 @@ namespace Balancer
 	class Balancer : HttpListener
 	{
 		private readonly List<IPEndPoint> replicaAddresses;
+		private readonly List<IPEndPoint> replicaGreyAddresses = new List<IPEndPoint>();
 		private readonly Random random;
 
 		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] replicaAddresses, ILog log)
@@ -98,6 +99,8 @@ namespace Balancer
 					return true;
 				replicaAddresses.Remove(replicaAddress);
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
+				log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
+				replicaGreyAddresses.Add(replicaAddress);
 			}
 			replicaResponse = null;
 			return false;
