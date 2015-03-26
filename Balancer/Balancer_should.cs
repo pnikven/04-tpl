@@ -21,7 +21,6 @@ namespace Balancer
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
 		private const int balancerTimeoutForReplica = 1000;
-		private List<IPEndPoint> replicaAddresses;
 		private List<Replica> replicas;
 		private Random random;
 
@@ -31,12 +30,6 @@ namespace Balancer
 			balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
 			query = "qqq=lalala";
 			processedQuery = QueryProcessor.Process(query);
-			replicaAddresses = new[]
-			{
-				new IPEndPoint(IPAddress.Loopback, 20000),
-				new IPEndPoint(IPAddress.Loopback, 20001),
-				new IPEndPoint(IPAddress.Loopback, 20002),
-			}.ToList();
 		}
 
 		[SetUp]
@@ -45,6 +38,12 @@ namespace Balancer
 			log = A.Fake<ILog>();
 			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica);
 			balancer.Start();
+			var replicaAddresses = new[]
+			{
+				new IPEndPoint(IPAddress.Loopback, 20000),
+				new IPEndPoint(IPAddress.Loopback, 20001),
+				new IPEndPoint(IPAddress.Loopback, 20002),
+			}.ToList();
 			replicas = replicaAddresses.Select(address => new Replica(address, log)).ToList();
 			foreach (var replica in replicas)
 				replica.Start();
@@ -67,7 +66,7 @@ namespace Balancer
 		[Test]
 		public void listen_http_requests()
 		{
-			balancer.TryAddReplicaAddress(replicaAddresses[0]);
+			balancer.TryAddReplicaAddress(GetSomeReplica().Address);
 			CreateTestHttpRequestToBalancerAndCheckResponse();
 
 			CheckBalancerReceivedQuery();
@@ -307,8 +306,13 @@ namespace Balancer
 		[Test]
 		public void compress_replica_reply_if_client_supports_deflate()
 		{
-			balancer.TryAddReplicaAddress(replicaAddresses[0]);
+			balancer.TryAddReplicaAddress(GetSomeReplica().Address);
 			CreateTestHttpRequestToBalancerAndCheckResponse(true);
+		}
+
+		private Replica GetSomeReplica()
+		{
+			return replicas.First();
 		}
 	}
 }
