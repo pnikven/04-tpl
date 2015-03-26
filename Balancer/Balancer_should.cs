@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using FakeItEasy;
 using log4net;
 using NUnit.Framework;
@@ -22,6 +24,7 @@ namespace Balancer
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
 		private const int balancerTimeoutForReplica = 1000;
+		private const int balancerTimeoutForGreyList = 100;
 		private List<Replica> replicas;
 		private Random random;
 
@@ -334,8 +337,28 @@ namespace Balancer
 			CheckBalancerSentQueryToReplica(replica);
 			CheckBadReplica(replica);
 			CheckBalancerMoveReplicaToGreyList(replica);
-
 		}
+
+		[Test]
+		public async Task return_replica_from_grey_list_after_timeout()
+		{
+			var replica = GetSomeReplica();
+			balancer.TryAddReplicaAddress(replica.Address);
+			replica.Stop();
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();
+
+			await CheckBalancerReturnedReplicaFromGreyListAfterTimeout(replica, balancerTimeoutForGreyList);
+		}
+
+		private async Task CheckBalancerReturnedReplicaFromGreyListAfterTimeout(Replica replica, int timeout)
+		{
+			Expression<Action> expectedAction = () => log.InfoFormat("{0}: {1} returned {2} from grey list",
+				A<Guid>.Ignored, balancer.Name, replica.Address);
+			A.CallTo(expectedAction).MustNotHaveHappened();
+			await Task.Delay(timeout);
+			A.CallTo(expectedAction).MustHaveHappened();
+		}
+
 
 		private Replica GetSomeReplica()
 		{
