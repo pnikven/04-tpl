@@ -39,23 +39,28 @@ namespace Balancer
 
 		public bool TryAddReplicaAddress(IPEndPoint replicaAddress)
 		{
-			if (replicaAddresses.Contains(replicaAddress))
-				return false;
-			replicaAddresses.Add(replicaAddress);
-			return true;
+			lock (locker)
+			{
+				if (replicaAddresses.Contains(replicaAddress) || replicaGreyAddresses.Contains(replicaAddress))
+					return false;
+				replicaAddresses.Add(replicaAddress);
+				return true;
+			}
 		}
 
 		public bool TryRemoveReplicaAddress(IPEndPoint replicaAddress)
 		{
-			if (!replicaAddresses.Contains(replicaAddress))
-				return false;
-			replicaAddresses.Remove(replicaAddress);
-			return true;
+			lock (locker)
+				return replicaAddresses.Remove(replicaAddress) || replicaGreyAddresses.Remove(replicaAddress);
 		}
 
 		public void ClearReplicaAddresses()
 		{
-			replicaAddresses.Clear();
+			lock (locker)
+			{
+				replicaAddresses.Clear();
+				replicaGreyAddresses.Clear();
+			}
 		}
 
 		protected override async Task OnContextAsync(HttpListenerContext context)
@@ -97,19 +102,26 @@ namespace Balancer
 
 		private bool TryProxyRequestToRandomReplica(Guid requestId, string query, out WebResponse replicaResponse)
 		{
-			while (replicaAddresses.Count > 0)
+			while (true)
 			{
-				var replicaAddress = GetRandomReplicaAddress();
+				IPEndPoint replicaAddress;
+				lock (locker)
+				{
+					if (replicaAddresses.Count > 0)
+						replicaAddress = replicaAddresses[random.Next(replicaAddresses.Count)];
+					else
+						break;
+				}
 				if (TryGetResponseFromReplica(requestId, replicaAddress, query, out replicaResponse))
 					return true;
-				replicaAddresses.Remove(replicaAddress);
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
 				lock (locker)
 				{
 					log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
-					replicaGreyAddresses.Add(replicaAddress);
-					ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);					
+					if (replicaAddresses.Remove(replicaAddress))
+						replicaGreyAddresses.Add(replicaAddress);
 				}
+				ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
 			}
 			replicaResponse = null;
 			return false;
@@ -124,8 +136,8 @@ namespace Balancer
 			lock (locker)
 			{
 				log.InfoFormat("{0}: returned {1} from grey list after {2} ms", requestId, replicaAddress, sw.ElapsedMilliseconds);
-				replicaGreyAddresses.Remove(replicaAddress);
-				replicaAddresses.Add(replicaAddress);				
+				if (replicaGreyAddresses.Remove(replicaAddress))
+					replicaAddresses.Add(replicaAddress);
 			}
 		}
 
@@ -153,11 +165,6 @@ namespace Balancer
 			var request = WebRequest.CreateHttp(uriStr);
 			request.Timeout = ReplicaTimeout;
 			return request;
-		}
-
-		private IPEndPoint GetRandomReplicaAddress()
-		{
-			return replicaAddresses[random.Next(replicaAddresses.Count)];
 		}
 
 		public override string Name
