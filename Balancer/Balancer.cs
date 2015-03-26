@@ -17,6 +17,7 @@ namespace Balancer
 		private readonly List<IPEndPoint> replicaAddresses;
 		private readonly List<IPEndPoint> replicaGreyAddresses = new List<IPEndPoint>();
 		private readonly Random random;
+		private readonly object locker = new object();
 
 		public Balancer(IPEndPoint balancerAddress, IPEndPoint[] replicaAddresses, ILog log)
 			: base(balancerAddress, log)
@@ -103,9 +104,12 @@ namespace Balancer
 					return true;
 				replicaAddresses.Remove(replicaAddress);
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
-				log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
-				replicaGreyAddresses.Add(replicaAddress);
-				ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
+				lock (locker)
+				{
+					log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
+					replicaGreyAddresses.Add(replicaAddress);
+					ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);					
+				}
 			}
 			replicaResponse = null;
 			return false;
@@ -117,9 +121,12 @@ namespace Balancer
 			sw.Start();
 			await Task.Delay(GreyListTimeout);
 			sw.Stop();
-			log.InfoFormat("{0}: returned {1} from grey list after {2} ms", requestId, replicaAddress, sw.ElapsedMilliseconds);
-			replicaGreyAddresses.Remove(replicaAddress);
-			replicaAddresses.Add(replicaAddress);
+			lock (locker)
+			{
+				log.InfoFormat("{0}: returned {1} from grey list after {2} ms", requestId, replicaAddress, sw.ElapsedMilliseconds);
+				replicaGreyAddresses.Remove(replicaAddress);
+				replicaAddresses.Add(replicaAddress);				
+			}
 		}
 
 		private bool TryGetResponseFromReplica(Guid requestId, IPEndPoint replicaAddress, string query, out WebResponse replicaResponse)
