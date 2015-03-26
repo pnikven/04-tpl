@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
 using log4net;
@@ -24,7 +25,7 @@ namespace Balancer
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
 		private const int balancerTimeoutForReplica = 1000;
-		private const int balancerTimeoutForGreyList = 100;
+		private const int balancerTimeoutForGreyList = 10000;
 		private List<Replica> replicas;
 		private Random random;
 
@@ -40,7 +41,7 @@ namespace Balancer
 		public void SetUp()
 		{
 			log = A.Fake<ILog>();
-			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica);
+			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica, balancerTimeoutForGreyList);
 			balancer.Start();
 			var replicaAddresses = new[]
 			{
@@ -223,13 +224,18 @@ namespace Balancer
 
 		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool clientSopportsCompressing = false)
 		{
-			var request = WebRequest.CreateHttp(
-				string.Format("http://{0}/method?{1}", balancerAddress, query));
+			var request = CreateTestHttpRequestToBalancer();
 
 			if (clientSopportsCompressing)
 				CheckBalancerDeflatedResponse(request);
 			else
 				CheckBalancerResponse(request);
+		}
+
+		private HttpWebRequest CreateTestHttpRequestToBalancer()
+		{
+			return WebRequest.CreateHttp(
+				string.Format("http://{0}/method?{1}", balancerAddress, query));
 		}
 
 		private void CheckBalancerResponse(HttpWebRequest balancerRequest)
@@ -340,25 +346,32 @@ namespace Balancer
 		}
 
 		[Test]
-		public async Task return_replica_from_grey_list_after_timeout()
+		public void return_replica_from_grey_list_after_timeout()
 		{
+			var greyListTimeout = 10;
+			RecreateBalancer(greyListTimeout);
+
 			var replica = GetSomeReplica();
 			balancer.TryAddReplicaAddress(replica.Address);
 			replica.Stop();
 			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();
 
-			await CheckBalancerReturnedReplicaFromGreyListAfterTimeout(replica, balancerTimeoutForGreyList);
+			CheckBalancerReturnedReplicaFromGreyListAfterTimeout(replica, greyListTimeout);
 		}
 
-		private async Task CheckBalancerReturnedReplicaFromGreyListAfterTimeout(Replica replica, int timeout)
+		private void RecreateBalancer(int greyListTimeout)
 		{
-			Expression<Action> expectedAction = () => log.InfoFormat("{0}: {1} returned {2} from grey list",
-				A<Guid>.Ignored, balancer.Name, replica.Address);
-			A.CallTo(expectedAction).MustNotHaveHappened();
-			await Task.Delay(timeout);
-			A.CallTo(expectedAction).MustHaveHappened();
+			balancer.Stop();
+			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica, greyListTimeout);
+			balancer.Start();
 		}
 
+		private void CheckBalancerReturnedReplicaFromGreyListAfterTimeout(Replica replica, int greyListTimeout)
+		{
+			Thread.Sleep(greyListTimeout * 10);
+			A.CallTo(() => log.InfoFormat("{0}: returned {1} from grey list after {2} ms",
+				A<Guid>.Ignored, replica.Address, A<long>.Ignored)).MustHaveHappened();
+		}
 
 		private Replica GetSomeReplica()
 		{

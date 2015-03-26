@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 
@@ -22,14 +24,16 @@ namespace Balancer
 			this.replicaAddresses = replicaAddresses == null ? new List<IPEndPoint>() : replicaAddresses.ToList();
 			random = new Random();
 			ReplicaTimeout = 100 * 1000;
+			GreyListTimeout = 10 * 1000;
 		}
 
-		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed, int replicaTimeout)
+		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed, int replicaTimeout, int greyListTimeout)
 			: base(balancerAddress, log)
 		{
 			replicaAddresses = new List<IPEndPoint>();
 			random = new Random(randomSeed);
 			ReplicaTimeout = replicaTimeout;
+			GreyListTimeout = greyListTimeout;
 		}
 
 		public bool TryAddReplicaAddress(IPEndPoint replicaAddress)
@@ -101,9 +105,21 @@ namespace Balancer
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
 				log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
 				replicaGreyAddresses.Add(replicaAddress);
+				ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
 			}
 			replicaResponse = null;
 			return false;
+		}
+
+		private async void ReturnReplicaAddressFromGreyListAfterTimeoutAsync(Guid requestId, IPEndPoint replicaAddress)
+		{
+			var sw = new Stopwatch();
+			sw.Start();
+			await Task.Delay(GreyListTimeout);
+			sw.Stop();
+			log.InfoFormat("{0}: returned {1} from grey list after {2} ms", requestId, replicaAddress, sw.ElapsedMilliseconds);
+			replicaGreyAddresses.Remove(replicaAddress);
+			replicaAddresses.Add(replicaAddress);
 		}
 
 		private bool TryGetResponseFromReplica(Guid requestId, IPEndPoint replicaAddress, string query, out WebResponse replicaResponse)
@@ -143,5 +159,6 @@ namespace Balancer
 		}
 
 		private int ReplicaTimeout { get; set; }
+		private int GreyListTimeout { get; set; }
 	}
 }
