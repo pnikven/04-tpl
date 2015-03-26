@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using FakeItEasy;
 using log4net;
@@ -66,8 +67,7 @@ namespace Balancer
 		[Test]
 		public void listen_http_requests()
 		{
-			balancer.TryAddReplicaAddress(GetSomeReplica().Address);
-			CreateTestHttpRequestToBalancerAndCheckResponse();
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();
 
 			CheckBalancerReceivedQuery();
 		}
@@ -206,6 +206,18 @@ namespace Balancer
 			random = new Random(balancerRandomSeed);
 		}
 
+		private void CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions()
+		{
+			try
+			{
+				CreateTestHttpRequestToBalancerAndCheckResponse();
+			}
+			catch
+			{
+				// ignored
+			}
+		}
+
 		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool clientSopportsCompressing = false)
 		{
 			var request = WebRequest.CreateHttp(
@@ -310,9 +322,30 @@ namespace Balancer
 			CreateTestHttpRequestToBalancerAndCheckResponse(true);
 		}
 
+		[Test]
+		public void move_failed_replica_to_grey_list()
+		{
+			var replica = GetSomeReplica();
+			balancer.TryAddReplicaAddress(replica.Address);
+			replica.Stop();
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();
+
+			CheckBalancerReceivedQuery();
+			CheckBalancerSentQueryToReplica(replica);
+			CheckBadReplica(replica);
+			CheckBalancerMoveReplicaToGreyList(replica);
+
+		}
+
 		private Replica GetSomeReplica()
 		{
 			return replicas.First();
+		}
+
+		private void CheckBalancerMoveReplicaToGreyList(Replica replica)
+		{
+			A.CallTo(() => log.InfoFormat("{0}: {1} move {2} to grey list",
+				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
 		}
 	}
 }
