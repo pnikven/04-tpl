@@ -210,11 +210,11 @@ namespace Balancer
 			random = new Random(balancerRandomSeed);
 		}
 
-		private void CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions()
+		private void CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions(bool clientSopportsCompressing = false, int? balancerTimeout = null)
 		{
 			try
 			{
-				CreateTestHttpRequestToBalancerAndCheckResponse();
+				CreateTestHttpRequestToBalancerAndCheckResponse(clientSopportsCompressing, balancerTimeout);
 			}
 			catch
 			{
@@ -222,9 +222,9 @@ namespace Balancer
 			}
 		}
 
-		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool clientSopportsCompressing = false)
+		private void CreateTestHttpRequestToBalancerAndCheckResponse(bool clientSopportsCompressing = false, int? balancerTimeout = null)
 		{
-			var request = CreateTestHttpRequestToBalancer();
+			var request = CreateTestHttpRequestToBalancer(balancerTimeout);
 
 			if (clientSopportsCompressing)
 				CheckBalancerDeflatedResponse(request);
@@ -232,10 +232,13 @@ namespace Balancer
 				CheckBalancerResponse(request);
 		}
 
-		private HttpWebRequest CreateTestHttpRequestToBalancer()
+		private HttpWebRequest CreateTestHttpRequestToBalancer(int? balancerTimeout = null)
 		{
-			return WebRequest.CreateHttp(
+			var request = WebRequest.CreateHttp(
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
+			if (balancerTimeout.HasValue)
+				request.Timeout = balancerTimeout.Value;
+			return request;
 		}
 
 		private void CheckBalancerResponse(HttpWebRequest balancerRequest)
@@ -354,7 +357,7 @@ namespace Balancer
 			var replica = GetSomeReplica();
 			balancer.TryAddReplicaAddress(replica.Address);
 			replica.Stop();
-			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions(false, 1000);
 
 			CheckBalancerReturnedReplicaFromGreyListAfterTimeout(replica, greyListTimeout);
 		}

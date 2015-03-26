@@ -106,22 +106,28 @@ namespace Balancer
 			{
 				IPEndPoint replicaAddress;
 				lock (locker)
-				{
 					if (replicaAddresses.Count > 0)
 						replicaAddress = replicaAddresses[random.Next(replicaAddresses.Count)];
+					else if (replicaGreyAddresses.Count > 0)
+					{
+						log.InfoFormat("{0}: there is no any active replica, try proxy request to some replica address from grey list",
+							requestId);
+						replicaAddress = replicaGreyAddresses[random.Next(replicaGreyAddresses.Count)];
+					}
 					else
 						break;
-				}
 				if (TryGetResponseFromReplica(requestId, replicaAddress, query, out replicaResponse))
 					return true;
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
 				lock (locker)
-				{
-					log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
 					if (replicaAddresses.Remove(replicaAddress))
+					{
 						replicaGreyAddresses.Add(replicaAddress);
-				}
-				ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
+						log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
+						ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
+					}
+					else
+						break;
 			}
 			replicaResponse = null;
 			return false;
