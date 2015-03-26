@@ -383,5 +383,23 @@ namespace Balancer
 			A.CallTo(() => log.InfoFormat("{0}: {1} move {2} to grey list",
 				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
 		}
+
+		[Test]
+		public void try_get_response_from_some_replica_in_grey_list_if_there_is_no_active_replicas()
+		{
+			AddAllTestReplicaAddressesToBalancer();
+			StopAllReplicas();
+
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();	// now all replicas are in grey list
+			CreateTestHttpRequestToBalancerAndCheckResponseIgnoringExceptions();	// new client request
+
+			CheckBalancerSentQueryToReplicaFromGreyList();
+		}
+
+		private void CheckBalancerSentQueryToReplicaFromGreyList()
+		{
+			A.CallTo(() => log.InfoFormat("{0}: there is no any active replica, try proxy request to some replica address from grey list",
+				A<Guid>.Ignored)).MustHaveHappened();
+		}
 	}
 }
