@@ -28,11 +28,11 @@ namespace Balancer
 			GreyListTimeout = 10 * 1000;
 		}
 
-		public Balancer(IPEndPoint balancerAddress, ILog log, int randomSeed, int replicaTimeout, int greyListTimeout)
+		public Balancer(IPEndPoint balancerAddress, ILog log, int replicaTimeout, int greyListTimeout, int? randomSeed = null)
 			: base(balancerAddress, log)
 		{
 			replicaAddresses = new List<IPEndPoint>();
-			random = new Random(randomSeed);
+			random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 			ReplicaTimeout = replicaTimeout;
 			GreyListTimeout = greyListTimeout;
 		}

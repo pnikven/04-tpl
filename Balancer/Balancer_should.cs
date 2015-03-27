@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using log4net;
 using NUnit.Framework;
@@ -41,7 +38,7 @@ namespace Balancer
 		public void SetUp()
 		{
 			log = A.Fake<ILog>();
-			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica, balancerTimeoutForGreyList);
+			balancer = new Balancer(balancerAddress, log, balancerTimeoutForReplica, balancerTimeoutForGreyList, balancerRandomSeed);
 			balancer.Start();
 			var replicaAddresses = new[]
 			{
@@ -365,7 +362,7 @@ namespace Balancer
 		private void RecreateBalancer(int greyListTimeout)
 		{
 			balancer.Stop();
-			balancer = new Balancer(balancerAddress, log, balancerRandomSeed, balancerTimeoutForReplica, greyListTimeout);
+			balancer = new Balancer(balancerAddress, log, balancerTimeoutForReplica, greyListTimeout, balancerRandomSeed);
 			balancer.Start();
 		}
 
