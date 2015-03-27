@@ -59,6 +59,7 @@
     <Compile Include="QueryProcessor.cs" />
     <Compile Include="Replica.cs" />
     <Compile Include="Replica_should.cs" />
+    <Compile Include="TaskExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

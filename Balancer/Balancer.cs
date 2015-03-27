@@ -5,8 +5,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 
@@ -71,8 +69,8 @@ namespace Balancer
 			var remoteEndPoint = context.Request.RemoteEndPoint;
 			log.InfoFormat("{0}: {1} received {2} from {3}", requestId, Name, query, remoteEndPoint);
 
-			WebResponse replicaResponse;
-			if (TryProxyRequestToRandomReplica(requestId, query, out replicaResponse))
+			var replicaResponse = await GetResponseFromRandomReplica(requestId, query);
+			if (replicaResponse != null)
 			{
 				var deflate = acceptEncoding != null && acceptEncoding.Contains("deflate");
 				if (deflate)
@@ -100,7 +98,7 @@ namespace Balancer
 					await source.CopyToAsync(destination);
 		}
 
-		private bool TryProxyRequestToRandomReplica(Guid requestId, string query, out WebResponse replicaResponse)
+		private async Task<WebResponse> GetResponseFromRandomReplica(Guid requestId, string query)
 		{
 			while (true)
 			{
@@ -116,8 +114,9 @@ namespace Balancer
 					}
 					else
 						break;
-				if (TryGetResponseFromReplica(requestId, replicaAddress, query, out replicaResponse))
-					return true;
+				var replicaResponse = await GetResponseFromReplica(requestId, replicaAddress, query);
+				if (replicaResponse != null)
+					return replicaResponse;
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
 				lock (locker)
 					if (replicaAddresses.Remove(replicaAddress))
@@ -129,8 +128,7 @@ namespace Balancer
 					else
 						break;
 			}
-			replicaResponse = null;
-			return false;
+			return null;
 		}
 
 		private async void ReturnReplicaAddressFromGreyListAfterTimeoutAsync(Guid requestId, IPEndPoint replicaAddress)
@@ -147,21 +145,20 @@ namespace Balancer
 			}
 		}
 
-		private bool TryGetResponseFromReplica(Guid requestId, IPEndPoint replicaAddress, string query, out WebResponse replicaResponse)
+		private async Task<WebResponse> GetResponseFromReplica(Guid requestId, IPEndPoint replicaAddress, string query)
 		{
 			var replicaRequest = CreateRequestToReplica(replicaAddress, query);
 			log.InfoFormat("{0}: {1} sent {2} to {3}", requestId, Name, query, replicaAddress);
 			try
 			{
-				replicaResponse = replicaRequest.GetResponse();
+				var replicaResponse = await replicaRequest.GetResponseAsync().TimeoutAfter(ReplicaTimeout);
 				log.InfoFormat("{0}: {1} received processed query from {2}", requestId, Name, replicaAddress);
-				return true;
+				return replicaResponse;
 			}
 			catch (Exception e)
 			{
-				log.Error(e);
-				replicaResponse = null;
-				return false;
+				log.Error(e.Message);
+				return null;
 			}
 		}
 
@@ -169,7 +166,6 @@ namespace Balancer
 		{
 			var uriStr = string.Format("http://{0}/{1}?{2}", replicaAddress, suffix, query);
 			var request = WebRequest.CreateHttp(uriStr);
-			request.Timeout = ReplicaTimeout;
 			return request;
 		}
 

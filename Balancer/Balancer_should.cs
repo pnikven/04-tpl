@@ -12,6 +12,13 @@ using NUnit.Framework;
 
 namespace Balancer
 {
+	enum ReplicaBehaviour
+	{
+		Stopped,
+		Failed,
+		Timeouted
+	}
+
 	[TestFixture]
 	class Balancer_should
 	{
@@ -22,7 +29,7 @@ namespace Balancer
 		private Balancer balancer;
 		private const int balancerRandomSeed = 0;
 		private const int balancerTimeoutForReplica = 1000;
-		private const int balancerTimeoutForGreyList = 10000;
+		private const int balancerTimeoutForGreyList = 10 * 1000;
 		private List<Replica> replicas;
 		private Random random;
 
@@ -111,22 +118,22 @@ namespace Balancer
 				balancer.TryAddReplicaAddress(replica.Address);
 		}
 
-		[TestCase(1)]
-		[TestCase(2)]
-		[TestCase(3)]
-		public void repeat_query_to_other_replica_if_current_chosen_replica_fails(int testCaseId)
+		[TestCase(ReplicaBehaviour.Stopped)]
+		[TestCase(ReplicaBehaviour.Failed)]
+		[TestCase(ReplicaBehaviour.Timeouted)]
+		public void repeat_query_to_other_replica_if_current_chosen_replica_fails(ReplicaBehaviour replicaBehaviour)
 		{
 			AddAllTestReplicaAddressesToBalancer();
 
 			var leftReplicas = replicas.ToList();
 			var replica = leftReplicas[random.Next(leftReplicas.Count())];
-			switch (testCaseId)
+			switch (replicaBehaviour)
 			{
-				case 1: replica.Stop();
+				case ReplicaBehaviour.Stopped: replica.Stop();
 					break;
-				case 2: replica.ShouldReturn500Error = true;
+				case ReplicaBehaviour.Failed: replica.ShouldReturn500Error = true;
 					break;
-				case 3: replica.RequestProcessingTime = balancerTimeoutForReplica + 1;
+				case ReplicaBehaviour.Timeouted: replica.RequestProcessingTime = balancerTimeoutForReplica + 1;
 					break;
 				default:
 					throw new NotImplementedException();
@@ -136,6 +143,8 @@ namespace Balancer
 			CheckBalancerReceivedQuery();
 
 			CheckBadReplica(replica);
+			if (replicaBehaviour == ReplicaBehaviour.Timeouted)
+				CheckTimeoutedReplica(replica);
 
 			leftReplicas.Remove(replica);
 			var nextReplica = leftReplicas[random.Next(leftReplicas.Count())];
@@ -280,6 +289,12 @@ namespace Balancer
 			CheckBalancerSentQueryToReplica(replica);
 			A.CallTo(() => log.InfoFormat("{0}: {1} can't proxy request to {2}",
 				A<Guid>.Ignored, balancer.Name, replica.Address)).MustHaveHappened();
+		}
+
+		private void CheckTimeoutedReplica(Replica replica)
+		{
+			CheckBalancerSentQueryToReplica(replica);
+			A.CallTo(() => log.Error(new TimeoutException("The operation has timed out.").Message)).MustHaveHappened();
 		}
 
 		private void CheckBalancerReceivedQuery()
