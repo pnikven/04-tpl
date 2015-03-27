@@ -294,7 +294,8 @@ namespace Balancer
 		private void CheckTimeoutedReplica(Replica replica)
 		{
 			CheckBalancerSentQueryToReplica(replica);
-			A.CallTo(() => log.Error(new TimeoutException("The operation has timed out.").Message)).MustHaveHappened();
+			A.CallTo(() => log.ErrorFormat("Can't get response from {0}: {1}", replica.Address,
+				new TimeoutException("The operation has timed out.").Message)).MustHaveHappened();
 		}
 
 		private void CheckBalancerReceivedQuery()

@@ -100,6 +100,7 @@ namespace Balancer
 
 		private async Task<WebResponse> GetResponseFromRandomReplica(Guid requestId, string query)
 		{
+			var replicaAddressFromGreyListUsed = false;
 			while (true)
 			{
 				IPEndPoint replicaAddress;
@@ -111,12 +112,15 @@ namespace Balancer
 						log.InfoFormat("{0}: there is no any active replica, try proxy request to some replica address from grey list",
 							requestId);
 						replicaAddress = replicaGreyAddresses[random.Next(replicaGreyAddresses.Count)];
+						replicaAddressFromGreyListUsed = true;
 					}
 					else
 						break;
 				var replicaResponse = await GetResponseFromReplica(requestId, replicaAddress, query);
 				if (replicaResponse != null)
 					return replicaResponse;
+				if (replicaAddressFromGreyListUsed)
+					break;
 				log.InfoFormat("{0}: {1} can't proxy request to {2}", requestId, Name, replicaAddress);
 				lock (locker)
 					if (replicaAddresses.Remove(replicaAddress))
@@ -125,8 +129,6 @@ namespace Balancer
 						log.InfoFormat("{0}: {1} move {2} to grey list", requestId, Name, replicaAddress);
 						ReturnReplicaAddressFromGreyListAfterTimeoutAsync(requestId, replicaAddress);
 					}
-					else
-						break;
 			}
 			return null;
 		}
@@ -157,7 +159,7 @@ namespace Balancer
 			}
 			catch (Exception e)
 			{
-				log.Error(e.Message);
+				log.ErrorFormat("Can't get response from {0}: {1}", replicaAddress, e.Message);
 				return null;
 			}
 		}

@@ -33,6 +33,11 @@ namespace Balancer
 					replica.Start();
 					balancer.TryAddReplicaAddress(replica.Address);
 				}
+				#region for testing
+				replicas[0].Stop();
+				replicas[1].RequestProcessingTime = replicaTimeout * 10;
+				//replicas[2].Stop();
+				#endregion
 				balancer.Start();
 				new ManualResetEvent(false).WaitOne();
 			}
