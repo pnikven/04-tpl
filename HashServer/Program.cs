@@ -16,8 +16,6 @@ namespace HashServer
         private static int delayMs = 1000;
         private static int port = 20000;
 
-		static void Main(string[] args)
-		{
         static void Main(string[] args)
         {
             if (args.Any())
