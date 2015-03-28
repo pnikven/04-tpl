@@ -14,6 +14,7 @@ namespace Balancer
 		private static readonly IPEndPoint balancerAddress = new IPEndPoint(IPAddress.Loopback, 10000);
 		private const int replicaTimeout = 1000;
 		private const int greyListTimeout = 10 * 1000;
+		private static int delayMs = 1000;
 
 		static void Main()
 		{
@@ -34,12 +35,27 @@ namespace Balancer
 					balancer.TryAddReplicaAddress(replica.Address);
 				}
 				#region for testing
-				replicas[0].Stop();
-				replicas[1].RequestProcessingTime = replicaTimeout * 10;
+				//replicas[0].Stop();
+				//replicas[1].RequestProcessingTime = replicaTimeout * 10;
 				//replicas[2].Stop();
 				#endregion
 				balancer.Start();
-				new ManualResetEvent(false).WaitOne();
+
+
+				Console.WriteLine("Enter replica delay in ms");
+				while (true)
+				{
+					var timeToSleepString = Console.ReadLine();
+					int timeToSleep;
+					if (int.TryParse(timeToSleepString, out timeToSleep))
+					{
+						delayMs = timeToSleep;
+						replicas[0].RequestProcessingTime = timeToSleep;
+					}
+					else
+						Console.WriteLine("Couldn't parse \"{0}\" as valid int.", timeToSleepString);
+					Console.WriteLine("Delay is {0} ms", delayMs);
+				}
 			}
 			catch (Exception e)
 			{
