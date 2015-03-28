@@ -12,6 +12,8 @@ namespace HashServer
 {
 	class Program
 	{
+		private static int delayMs = 1000;
+
 		static void Main(string[] args)
 		{
 			XmlConfigurator.Configure();
@@ -24,7 +26,17 @@ namespace HashServer
 				listenerSync.Start();
 
 				log.InfoFormat("Server started!");
-				new ManualResetEvent(false).WaitOne();
+				Console.WriteLine("Enter server delay in ms");
+				while (true)
+				{
+					var timeToSleepString = Console.ReadLine();
+					int timeToSleep;
+					if (int.TryParse(timeToSleepString, out timeToSleep))
+						delayMs = timeToSleep;
+					else
+						Console.WriteLine("Couldn't parse \"{0}\" as valid int.", timeToSleepString);
+					Console.WriteLine("Delay is {0} ms", delayMs);
+				}
 			}
 			catch(Exception e)
 			{
@@ -41,8 +53,7 @@ namespace HashServer
 			log.InfoFormat("{0}: received {1} from {2}", requestId, query, remoteEndPoint);
 			context.Request.InputStream.Close();
 
-			await Task.Delay(1000);
-//			Thread.Sleep(1000);
+			await Task.Delay(delayMs);
 
 			var hash = Convert.ToBase64String(CalcHash(Encoding.UTF8.GetBytes(query)));
 			var encryptedBytes = Encoding.UTF8.GetBytes(hash);
@@ -60,7 +71,7 @@ namespace HashServer
 			log.InfoFormat("{0}: received {1} from {2}", requestId, query, remoteEndPoint);
 			context.Request.InputStream.Close();
 
-			Thread.Sleep(1000);
+			Thread.Sleep(delayMs);
 
 			var hash = Convert.ToBase64String(CalcHash(Encoding.UTF8.GetBytes(query)));
 			var encryptedBytes = Encoding.UTF8.GetBytes(hash);
