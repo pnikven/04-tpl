@@ -15,6 +15,7 @@ namespace Balancer
 		private const int replicaTimeout = 1000;
 		private const int greyListTimeout = 10 * 1000;
 		private static int delayMs = 1000;
+		private static readonly int changedReplicaId = 0;
 
 		static void Main()
 		{
@@ -42,7 +43,7 @@ namespace Balancer
 				balancer.Start();
 
 
-				Console.WriteLine("Enter replica delay in ms");
+				Console.WriteLine("Enter replica #0 delay in ms");
 				while (true)
 				{
 					var timeToSleepString = Console.ReadLine();
@@ -50,7 +51,8 @@ namespace Balancer
 					if (int.TryParse(timeToSleepString, out timeToSleep))
 					{
 						delayMs = timeToSleep;
-						replicas[0].RequestProcessingTime = timeToSleep;
+						replicas[changedReplicaId].RequestProcessingTime = timeToSleep;
+						log.InfoFormat("Replica {0} processingTime set to {1}", changedReplicaId, delayMs);
 					}
 					else
 						Console.WriteLine("Couldn't parse \"{0}\" as valid int.", timeToSleepString);

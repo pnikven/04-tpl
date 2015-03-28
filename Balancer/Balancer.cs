@@ -168,6 +168,10 @@ namespace Balancer
 		{
 			var uriStr = string.Format("http://{0}/{1}?{2}", replicaAddress, suffix, query);
 			var request = WebRequest.CreateHttp(uriStr);
+			request.Proxy = null;
+			request.KeepAlive = true;
+			request.ServicePoint.UseNagleAlgorithm = false;
+			request.ServicePoint.ConnectionLimit = 4;
 			return request;
 		}
 

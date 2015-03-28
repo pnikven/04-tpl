@@ -244,6 +244,10 @@ namespace Balancer
 				string.Format("http://{0}/method?{1}", balancerAddress, query));
 			if (balancerTimeout.HasValue)
 				request.Timeout = balancerTimeout.Value;
+			request.Proxy = null;
+			request.KeepAlive = true;
+			request.ServicePoint.UseNagleAlgorithm = false;
+			request.ServicePoint.ConnectionLimit = 4;
 			return request;
 		}
 
